@@ -1,0 +1,145 @@
+aid: gingr
+name: Gingr
+review:
+  question: Does Gingr expose a documented public WebSocket API?
+  answer: false
+  date: '2026-07-04'
+  reviewer: API Evangelist
+  asyncapiSpecCreated: false
+  asyncapiScopeNote: |
+    No AsyncAPI document was authored. Gingr's public Partner API surface
+    (api.gingr.io, documented at docs.gingr.io/documentation) is entirely
+    request/response REST over HTTPS in a JSON:API-flavored shape - there is
+    no server-push transport (WebSocket or SSE) documented anywhere in the
+    live OpenAPI/Swagger spec, the accompanying Postman collection, or the
+    Zendesk support articles describing the API. There is nothing resembling
+    a streaming or realtime channel to model as AsyncAPI.
+  findings:
+    summary: |
+      Gingr does not publish a documented public WebSocket API. Gingr is
+      pet-care business management software for dog daycare, boarding,
+      training, and grooming facilities. It exposes a genuine, actively
+      maintained Partner API at https://api.gingr.io (Gingr API v1.8.0),
+      documented with a live public OpenAPI 3.0/Swagger document at
+      https://docs.gingr.io/documentation/swagger.json, a Redoc view, and a
+      downloadable Postman collection plus environment. As of this review the
+      spec documents 158 request/response REST operations covering owners
+      ("parents"), pets, bookings/reservations, invoices, payments,
+      immunizations, report cards, and extensive facility configuration.
+      Requests use a JSON:API content type (application/vnd.api+json),
+      require an X-Api-Key header issued per account plus a subdomain header
+      identifying the facility, and return JSON. No ws:// or wss:// endpoint,
+      Server-Sent Events endpoint, or webhook subscription mechanism is
+      documented on this API. Gingr also references an older, simpler
+      subdomain-scoped legacy API (https://{subdomain}.gingrapp.com/api/v1/...
+      with an API key passed as a query parameter) in its Zendesk knowledge
+      base, described there as read-only; it is likewise plain HTTPS
+      request/response with no realtime transport.
+    openSource: |
+      Gingr is closed-source, proprietary vertical SaaS. There is no public
+      SDK, CLI, or open-source client library; integrators call the REST API
+      directly or use the published Postman collection.
+    transports:
+      - protocol: REST
+        scheme: https
+        baseURL: https://api.gingr.io
+        documented: true
+        note: >-
+          Partner API, JSON:API-flavored (application/vnd.api+json). Live
+          OpenAPI 3.0 document at
+          https://docs.gingr.io/documentation/swagger.json, 158 operations as
+          of this review (Gingr API v1.8.0). Auth via X-Api-Key + subdomain
+          headers.
+      - protocol: REST (legacy)
+        scheme: https
+        baseURL: https://{subdomain}.gingrapp.com/api/v1
+        documented: true
+        note: >-
+          Older, simpler subdomain-hosted reporting API referenced in Gingr's
+          Zendesk knowledge base; API key passed as a query parameter;
+          described there as read-only.
+      - protocol: WebSocket
+        scheme: wss
+        documented: false
+        note: No WebSocket endpoint is documented anywhere in Gingr's Partner API spec, Postman collection, or support articles as of the review date.
+    endpointsConfirmed:
+      - GET    https://api.gingr.io/v1/parents
+      - POST   https://api.gingr.io/v1/parents
+      - GET    https://api.gingr.io/v1/parents/{parentId}
+      - PUT    https://api.gingr.io/v1/parents/{parentId}
+      - DELETE https://api.gingr.io/v1/parents/{parentId}
+      - GET    https://api.gingr.io/v1/parents/validate-email
+      - GET    https://api.gingr.io/v1/parents/validate-phone
+      - POST   https://api.gingr.io/v1/parents/merge
+      - GET    https://api.gingr.io/v1/pets
+      - POST   https://api.gingr.io/v1/pets
+      - GET    https://api.gingr.io/v1/pets/{petId}
+      - PUT    https://api.gingr.io/v1/pets/{petId}
+      - DELETE https://api.gingr.io/v1/pets/{petId}
+      - POST   https://api.gingr.io/v1/pets/merge
+      - GET    https://api.gingr.io/v1/bookings
+      - POST   https://api.gingr.io/v1/bookings
+      - GET    https://api.gingr.io/v1/bookings/{bookingId}
+      - PUT    https://api.gingr.io/v1/bookings/{bookingId}
+      - PUT    https://api.gingr.io/v1/bookings/{bookingId}/cancel
+      - POST   https://api.gingr.io/v1/bookings/{bookingId}/check-in
+      - POST   https://api.gingr.io/v1/bookings/{bookingId}/checkout
+      - GET    https://api.gingr.io/v1/bookings/{bookingId}/estimate
+      - PUT    https://api.gingr.io/v1/bookings/{bookingId}/services
+      - GET    https://api.gingr.io/v1/bookings/available-lodgings
+      - POST   https://api.gingr.io/v1/bookings/{bookingId}/wait-list
+      - POST   https://api.gingr.io/v1/bookings/{bookingId}/accept
+      - GET    https://api.gingr.io/v1/config/service-types
+      - GET    https://api.gingr.io/v1/config/service-types/{serviceTypeId}
+      - GET    https://api.gingr.io/v1/config/booking-types
+      - GET    https://api.gingr.io/v1/config/lodgings
+      - GET    https://api.gingr.io/v1/config/locations
+      - GET    https://api.gingr.io/v1/config/locations/{locationId}
+      - GET    https://api.gingr.io/v1/invoices
+      - GET    https://api.gingr.io/v1/invoices/{invoiceId}
+      - GET    https://api.gingr.io/v1/invoices/charges
+      - POST   https://api.gingr.io/v1/invoices/{invoiceId}/refund-items
+      - POST   https://api.gingr.io/v1/payments/charge
+      - POST   https://api.gingr.io/v1/payments/invoices/{invoiceId}
+      - POST   https://api.gingr.io/v1/payments/invoices/{invoiceId}/refund
+      - POST   https://api.gingr.io/v1/payments/deposits/{depositId}
+      - GET    https://api.gingr.io/v1/pets/{petId}/immunizations
+      - PUT    https://api.gingr.io/v1/pets/{petId}/immunizations/{immunizationTypeId}
+      - GET    https://api.gingr.io/v1/pets/immunization/expired
+      - GET    https://api.gingr.io/v1/config/immunization-types
+      - GET    https://api.gingr.io/v1/pets/{petId}/report-cards
+      - GET    https://api.gingr.io/v1/pets/{petId}/report-cards/{reportCardId}
+      - GET    https://api.gingr.io/v1/pets/report-card-media
+      - GET    https://api.gingr.io/v1/config/report-card-form
+    endpointsModeled: []
+  sources:
+    - url: https://docs.gingr.io/documentation
+      type: Documentation
+      note: Live Swagger UI for the Gingr Partner API, backed by a real public swagger.json (OpenAPI 3.0, Gingr API v1.8.0, 158 operations); also offers a Redoc view and downloadable Postman collection/environment.
+    - url: https://docs.gingr.io/documentation/swagger.json
+      type: OpenAPI
+      note: The authoritative machine-readable spec this review and the accompanying openapi/gingr-openapi.yml subset were grounded in.
+    - url: https://api-docs.gingrapp.com/
+      type: Documentation
+      note: Gingr Partner API documentation portal.
+    - url: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+      type: Documentation
+      note: Zendesk reference for Gingr's API functions, including the older subdomain-scoped legacy endpoints.
+    - url: https://support.gingrapp.com/hc/en-us/articles/26687212732685-Get-Started-with-API-Topic-Outline
+      type: Documentation
+      note: Getting-started outline for accessing Gingr's API and API keys.
+    - url: https://support.gingrapp.com/hc/en-us/articles/27482358729101-API-Feature-Overview
+      type: Documentation
+      note: Feature overview describing API access as a facility-level capability.
+    - url: https://www.gingrapp.com/
+      type: Website
+      note: Gingr product marketing site describing daycare, boarding, training, and grooming software.
+actions:
+  asyncapiPath: null
+  apisYmlUpdated: true
+  reason: |
+    No WebSocket or other server-push transport exists on either Gingr API
+    generation - both the current JSON:API Partner API at api.gingr.io and
+    the older subdomain-scoped legacy API are plain request/response REST
+    over HTTPS. No AsyncAPI document was created because there is no
+    streaming surface on Gingr's own API to model.

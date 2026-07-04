@@ -1,0 +1,140 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Gingr
+providerId: gingr
+created: '2026-07-04'
+modified: '2026-07-04'
+reconciled: false
+tags:
+- Pet Care
+- Pet Daycare
+- Boarding
+- Grooming
+- Plans
+description: >-
+  Gingr is sold as a per-facility (per-location) monthly subscription, tiered
+  by which line of business a facility runs - grooming-only, daycare, or
+  boarding/daycare/training combined - rather than by API call volume. Third
+  party pricing trackers report roughly $100-110/month for a grooming-focused
+  "Spa" tier, $140-170/month for a daycare "Play" tier, and $150-210/month for
+  a full boarding "Stay" tier, with lower ends available when a facility also
+  uses Gingr's integrated payment processing. Multi-location operators get
+  custom packages. The Partner API (X-Api-Key + subdomain header access to
+  api.gingr.io) ships as part of the core subscription; Gingr does not publish
+  a separate metered price for API usage.
+notes: >-
+  Exact current tier names/prices are not reconciled here - verify on Gingr's
+  own pricing page and via a sales conversation, since third-party trackers
+  (G2, Capterra, GetApp, SoftwareAdvice) show materially different numbers for
+  the same tiers and pricing changes without a public changelog. Add-ons such
+  as integrated payments, two-way SMS, and employee scheduling are billed
+  separately from the base subscription.
+sources:
+- https://www.gingrapp.com/pricing
+- https://www.g2.com/products/gingr/pricing
+- https://www.capterra.com/p/136469/Gingr/pricing/
+- https://www.getapp.com/industries-software/a/gingr/pricing/
+plans:
+- id: gingr-spa
+  name: Spa (Grooming)
+  type: paid
+  description: >-
+    Entry tier aimed at grooming-only businesses. Third-party trackers report
+    roughly $100-110/month per facility, with the lower end tied to using
+    Gingr's integrated payment processing.
+  entries:
+  - label: Monthly Subscription
+    name: spa_monthly
+    type: flat
+    metric: facility
+    limit: 1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: approximately $100-110/month per facility (unverified, see notes)
+    userMultiplied: false
+  elements:
+  - name: Grooming Scheduling
+  - name: Client and Pet Profiles
+  - name: Point of Sale
+  - name: Partner API Access
+- id: gingr-play
+  name: Play (Daycare)
+  type: paid
+  description: >-
+    Daycare-focused tier adding capacity/lodging management and report cards.
+    Third-party trackers report roughly $140-170/month per facility.
+  entries:
+  - label: Monthly Subscription
+    name: play_monthly
+    type: flat
+    metric: facility
+    limit: 1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: approximately $140-170/month per facility (unverified, see notes)
+    userMultiplied: false
+  elements:
+  - name: Daycare Scheduling
+  - name: Report Cards
+  - name: Immunization Tracking
+  - name: Partner API Access
+- id: gingr-stay
+  name: Stay (Boarding)
+  type: paid
+  description: >-
+    Full boarding, daycare, training, and grooming tier with lodging/kennel
+    management. Third-party trackers report roughly $150-210/month per
+    facility.
+  entries:
+  - label: Monthly Subscription
+    name: stay_monthly
+    type: flat
+    metric: facility
+    limit: 1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: approximately $150-210/month per facility (unverified, see notes)
+    userMultiplied: false
+  elements:
+  - name: Boarding and Lodging Management
+  - name: Daycare and Training Scheduling
+  - name: Waitlist Management
+  - name: Report Cards
+  - name: Immunization Tracking
+  - name: Partner API Access
+- id: gingr-enterprise
+  name: Multi-Location / Enterprise
+  type: enterprise
+  description: >-
+    Custom package for pet-care businesses operating multiple facilities,
+    negotiated based on number of locations, services offered, and
+    operational complexity.
+  entries:
+  - label: Custom Agreement
+    name: enterprise
+    type: flat
+    metric: contract
+    limit: -1
+    timeFrame: year
+    geo: global
+    unit: 1
+    price: contact sales
+    userMultiplied: false
+  elements:
+  - name: Multi-Location Reporting
+  - name: Centralized Management
+  - name: Custom Onboarding
+addOns:
+- name: Integrated Payment Processing
+  description: Card-present and card-not-present payment processing through Gingr; using it can lower the base subscription tier price.
+- name: Two-Way SMS
+  description: Owner text messaging add-on billed separately from the base subscription.
+- name: Employee Scheduling
+  description: Staff scheduling add-on billed separately from the base subscription.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

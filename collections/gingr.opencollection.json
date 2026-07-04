@@ -1,0 +1,953 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Gingr Partner API",
+    "version": "1.8.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-Api-Key",
+      "value": "{{apiKey}}",
+      "in": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Owners",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List owners.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/parents"
+          },
+          "docs": "Lists owner (parent) records, filterable by name, email, phone, home location, or created date range."
+        },
+        {
+          "info": {
+            "name": "Create an owner.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/parents",
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"type\": \"parents\", \"attributes\": {\"firstName\": \"TestFirst\", \"lastName\": \"TestLast\", \"address1\": \"123 Test Street\", \"city\": \"Atlanta\", \"region\": \"Georgia\", \"zip\": \"30301\", \"contact\": {\"email\": \"test@example.com\", \"cellPhone\": \"555-987-6543\"}}}}"
+            }
+          },
+          "docs": "Creates a new owner (parent) record."
+        },
+        {
+          "info": {
+            "name": "Get an owner.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/parents/:parentId",
+            "params": [
+              {
+                "name": "parentId",
+                "value": "",
+                "type": "path",
+                "description": "The parentId."
+              }
+            ]
+          },
+          "docs": "Retrieves a single owner (parent) record by ID."
+        },
+        {
+          "info": {
+            "name": "Update an owner.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.gingr.io/v1/parents/:parentId",
+            "params": [
+              {
+                "name": "parentId",
+                "value": "",
+                "type": "path",
+                "description": "The parentId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"type\": \"parents\", \"attributes\": {}}}"
+            }
+          },
+          "docs": "Updates an existing owner (parent) record."
+        },
+        {
+          "info": {
+            "name": "Delete an owner.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.gingr.io/v1/parents/:parentId",
+            "params": [
+              {
+                "name": "parentId",
+                "value": "",
+                "type": "path",
+                "description": "The parentId."
+              }
+            ]
+          },
+          "docs": "Deletes an owner (parent) record."
+        },
+        {
+          "info": {
+            "name": "Validate email uniqueness.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/parents/validate-email?email=test@example.com",
+            "params": [
+              {
+                "name": "email",
+                "value": "test@example.com",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Checks whether an email address already belongs to an owner record."
+        },
+        {
+          "info": {
+            "name": "Validate phone uniqueness.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/parents/validate-phone?phone=555-987-6543",
+            "params": [
+              {
+                "name": "phone",
+                "value": "555-987-6543",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Checks whether a phone number already belongs to an owner record."
+        },
+        {
+          "info": {
+            "name": "Merge two owners.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/parents/merge",
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"attributes\": {\"sourceParentId\": 0, \"targetParentId\": 0}}}"
+            }
+          },
+          "docs": "Merges a duplicate owner (parent) record into a surviving record."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Pets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List pets.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets"
+          },
+          "docs": "Lists pet profiles, filterable by owner, species, or breed."
+        },
+        {
+          "info": {
+            "name": "Create a pet.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/pets",
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"type\": \"pets\", \"attributes\": {\"name\": \"Abby\", \"sex\": \"Female\", \"weight\": 16, \"birthday\": \"2012-08-27\", \"parentId\": 0}}}"
+            }
+          },
+          "docs": "Creates a new pet profile belonging to an owner."
+        },
+        {
+          "info": {
+            "name": "Get a pet.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/:petId",
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path",
+                "description": "The petId."
+              }
+            ]
+          },
+          "docs": "Retrieves a single pet profile by ID, including breed, feeding, and medication data."
+        },
+        {
+          "info": {
+            "name": "Update a pet.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.gingr.io/v1/pets/:petId",
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path",
+                "description": "The petId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"type\": \"pets\", \"attributes\": {}}}"
+            }
+          },
+          "docs": "Updates an existing pet profile."
+        },
+        {
+          "info": {
+            "name": "Delete a pet.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.gingr.io/v1/pets/:petId",
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path",
+                "description": "The petId."
+              }
+            ]
+          },
+          "docs": "Deletes a pet profile."
+        },
+        {
+          "info": {
+            "name": "Merge two pets.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/pets/merge",
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"attributes\": {}}}"
+            }
+          },
+          "docs": "Merges a duplicate pet record into a surviving record."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Reservations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List bookings.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/bookings"
+          },
+          "docs": "Lists bookings/reservations, filterable by created/booking date range, status, owner, pet, or location."
+        },
+        {
+          "info": {
+            "name": "Create a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/bookings",
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"type\": \"bookings\", \"attributes\": {\"parentId\": 0, \"petIds\": [0], \"bookingTypeId\": 0, \"locationId\": 0, \"bookingStart\": \"2026-08-01T10:00:00Z\", \"bookingEnd\": \"2026-08-03T10:00:00Z\"}}}"
+            }
+          },
+          "docs": "Creates a new booking/reservation for a pet."
+        },
+        {
+          "info": {
+            "name": "Get a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ]
+          },
+          "docs": "Retrieves a single booking/reservation by ID."
+        },
+        {
+          "info": {
+            "name": "Update a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"type\": \"bookings\", \"attributes\": {}}}"
+            }
+          },
+          "docs": "Updates an existing booking/reservation."
+        },
+        {
+          "info": {
+            "name": "Cancel a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/cancel",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"attributes\": {\"cancellationReasonId\": 0}}}"
+            }
+          },
+          "docs": "Cancels a booking, optionally recording a cancellation reason."
+        },
+        {
+          "info": {
+            "name": "Check in a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/check-in",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ]
+          },
+          "docs": "Checks a booking in, marking status checked_in."
+        },
+        {
+          "info": {
+            "name": "Checkout a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/checkout",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ]
+          },
+          "docs": "Checks a booking out, typically generating an invoice."
+        },
+        {
+          "info": {
+            "name": "Estimate a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/estimate",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ]
+          },
+          "docs": "Returns an estimated price for a booking based on its configured services and dates."
+        },
+        {
+          "info": {
+            "name": "Add a service to a booking.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/services",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"attributes\": {\"serviceTypeId\": 0}}}"
+            }
+          },
+          "docs": "Adds a service to an existing booking."
+        },
+        {
+          "info": {
+            "name": "List available lodgings.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/bookings/available-lodgings?filter[bookingStart]=2026-08-01&filter[bookingEnd]=2026-08-03",
+            "params": [
+              {
+                "name": "filter[bookingStart]",
+                "value": "2026-08-01",
+                "type": "query"
+              },
+              {
+                "name": "filter[bookingEnd]",
+                "value": "2026-08-03",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns the lodgings (kennels/runs/suites) available for a given date range."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Services",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List service types.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/service-types"
+          },
+          "docs": "Lists the facility's configured service types (e.g. daycare, boarding, grooming, training add-ons)."
+        },
+        {
+          "info": {
+            "name": "Get a service type.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/service-types/:serviceTypeId",
+            "params": [
+              {
+                "name": "serviceTypeId",
+                "value": "",
+                "type": "path",
+                "description": "The serviceTypeId."
+              }
+            ]
+          },
+          "docs": "Retrieves detailed information for a specific service type."
+        },
+        {
+          "info": {
+            "name": "List booking types.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/booking-types"
+          },
+          "docs": "Lists the facility's configured booking types."
+        },
+        {
+          "info": {
+            "name": "List lodgings.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/lodgings"
+          },
+          "docs": "Lists the facility's configured lodgings (kennels/runs/suites)."
+        },
+        {
+          "info": {
+            "name": "List locations.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/locations"
+          },
+          "docs": "Lists the facility's locations, for multi-location Gingr accounts."
+        },
+        {
+          "info": {
+            "name": "Get a location.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/locations/:locationId",
+            "params": [
+              {
+                "name": "locationId",
+                "value": "",
+                "type": "path",
+                "description": "The locationId."
+              }
+            ]
+          },
+          "docs": "Retrieves a single location by ID."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Invoices & Payments",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List invoices.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/invoices"
+          },
+          "docs": "Lists invoices, filterable by owner."
+        },
+        {
+          "info": {
+            "name": "Get an invoice.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/invoices/:invoiceId",
+            "params": [
+              {
+                "name": "invoiceId",
+                "value": "",
+                "type": "path",
+                "description": "The invoiceId."
+              }
+            ]
+          },
+          "docs": "Retrieves a single invoice with line items."
+        },
+        {
+          "info": {
+            "name": "List invoice charges.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/invoices/charges"
+          },
+          "docs": "Lists individual charge line items across invoices."
+        },
+        {
+          "info": {
+            "name": "Refund invoice items.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/invoices/:invoiceId/refund-items",
+            "params": [
+              {
+                "name": "invoiceId",
+                "value": "",
+                "type": "path",
+                "description": "The invoiceId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"attributes\": {\"itemIds\": [0], \"refundReasonId\": 0}}}"
+            }
+          },
+          "docs": "Refunds specific line items on an invoice."
+        },
+        {
+          "info": {
+            "name": "Charge a card on file.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/payments/charge",
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"attributes\": {\"parentId\": 0, \"amount\": 0}}}"
+            }
+          },
+          "docs": "Charges an owner's card on file for an arbitrary amount, outside of a specific invoice."
+        },
+        {
+          "info": {
+            "name": "Pay an invoice.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/payments/invoices/:invoiceId",
+            "params": [
+              {
+                "name": "invoiceId",
+                "value": "",
+                "type": "path",
+                "description": "The invoiceId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {}}"
+            }
+          },
+          "docs": "Pays an invoice using an owner's card on file."
+        },
+        {
+          "info": {
+            "name": "Refund an invoice.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/payments/invoices/:invoiceId/refund",
+            "params": [
+              {
+                "name": "invoiceId",
+                "value": "",
+                "type": "path",
+                "description": "The invoiceId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {}}"
+            }
+          },
+          "docs": "Refunds a paid invoice."
+        },
+        {
+          "info": {
+            "name": "Pay a deposit.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/payments/deposits/:depositId",
+            "params": [
+              {
+                "name": "depositId",
+                "value": "",
+                "type": "path",
+                "description": "The depositId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {}}"
+            }
+          },
+          "docs": "Pays a deposit for a booking."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Vaccinations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List a pet's immunizations.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/:petId/immunizations",
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path",
+                "description": "The petId."
+              }
+            ]
+          },
+          "docs": "Lists a pet's immunization/vaccination records against the facility's configured immunization types."
+        },
+        {
+          "info": {
+            "name": "Update a pet's immunization.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.gingr.io/v1/pets/:petId/immunizations/:immunizationTypeId",
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path",
+                "description": "The petId."
+              },
+              {
+                "name": "immunizationTypeId",
+                "value": "",
+                "type": "path",
+                "description": "The immunizationTypeId."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\"data\": {\"attributes\": {\"administeredDate\": \"2026-01-15\", \"expirationDate\": \"2027-01-15\"}}}"
+            }
+          },
+          "docs": "Records or updates a pet's immunization/vaccination date and expiration."
+        },
+        {
+          "info": {
+            "name": "List expired immunizations.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/immunization/expired"
+          },
+          "docs": "Facility-wide list of expired pet immunizations, for compliance follow-up before check-in."
+        },
+        {
+          "info": {
+            "name": "List immunization types.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/immunization-types"
+          },
+          "docs": "Lists the immunization/vaccination types the facility requires or tracks."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Report Cards",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List a pet's report cards.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/:petId/report-cards?filter[locationId]=0",
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path",
+                "description": "The petId."
+              },
+              {
+                "name": "filter[locationId]",
+                "value": "0",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Lists the daily activity report cards generated for a pet, scoped to a location."
+        },
+        {
+          "info": {
+            "name": "Get a report card.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/:petId/report-cards/:reportCardId",
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path",
+                "description": "The petId."
+              },
+              {
+                "name": "reportCardId",
+                "value": "",
+                "type": "path",
+                "description": "The reportCardId."
+              }
+            ]
+          },
+          "docs": "Retrieves a single report card, including notes and activities."
+        },
+        {
+          "info": {
+            "name": "List report card media.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/report-card-media"
+          },
+          "docs": "Lists photo/video media attached to report cards."
+        },
+        {
+          "info": {
+            "name": "Get report card form configuration.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/report-card-form"
+          },
+          "docs": "Returns the facility's configured report card form fields."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Waitlist",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Move a booking to the waitlist.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/wait-list",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ]
+          },
+          "docs": "Moves a booking to wait_listed status, typically because the requested location or lodging is at capacity."
+        },
+        {
+          "info": {
+            "name": "Accept a booking off the waitlist.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/accept",
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path",
+                "description": "The bookingId."
+              }
+            ]
+          },
+          "docs": "Accepts a wait-listed or pending booking off the waitlist/queue and confirms it."
+        },
+        {
+          "info": {
+            "name": "List wait-listed bookings.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/bookings?filter[status][type]=wait_listed&filter[status][from]=2026-01-01&filter[status][to]=2026-12-31",
+            "params": [
+              {
+                "name": "filter[status][type]",
+                "value": "wait_listed",
+                "type": "query"
+              },
+              {
+                "name": "filter[status][from]",
+                "value": "2026-01-01",
+                "type": "query"
+              },
+              {
+                "name": "filter[status][to]",
+                "value": "2026-12-31",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Lists bookings currently in wait_listed status within a date range."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

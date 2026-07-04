@@ -1,0 +1,99 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Gingr
+providerId: gingr
+created: '2026-07-04'
+modified: '2026-07-04'
+reconciled: false
+tags:
+- Pet Care
+- Pet Daycare
+- Boarding
+- Grooming
+- FinOps
+- Cost Management
+- FOCUS
+description: >-
+  FinOps view of Gingr spend. Gingr is billed as a flat per-facility monthly
+  software subscription (tiered by Spa/grooming, Play/daycare, or Stay/boarding
+  line of business), not metered by API call volume - the Partner API ships
+  as part of the subscription at no separate charge. The larger variable cost
+  driver for most facilities is payment processing volume when using Gingr's
+  integrated payments add-on, plus optional add-ons like two-way SMS and
+  employee scheduling.
+notes: >-
+  Per-tier and per-location rates are not reconciled here; verify current
+  pricing directly with Gingr. For multi-location operators, allocate the
+  subscription cost per facility/subdomain since each location is a distinct
+  billable unit and a distinct API-key scope.
+sources:
+- https://www.gingrapp.com/pricing
+- https://docs.gingr.io/documentation
+- https://focus.finops.org/focus-specification/v1-3/
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: Gingr
+serviceCategory: Vertical SaaS - Pet Care Business Management
+billingModel:
+  pricingCategory: Flat-Rate Subscription
+  billingFrequency: Monthly
+  billingCurrency: USD
+  chargeCategories:
+  - Purchase
+  - Usage
+  - Adjustment
+focusColumns:
+  ServiceName: Gingr
+  ServiceCategory: Vertical SaaS - Pet Care Business Management
+  ProviderName: Gingr
+  PublisherName: Gingr
+  InvoiceIssuerName: Gingr
+  BillingCurrency: USD
+  ChargeCategory: Purchase
+  PricingCategory: Flat-Rate Subscription
+meters:
+- name: facility_subscription
+  description: Flat monthly subscription fee per facility/location, tiered by Spa/Play/Stay line of business.
+  unit: facilities
+  aggregation: sum
+  dimensions:
+  - account
+  - location
+- name: payment_processing_volume
+  description: Payment volume processed through Gingr's integrated payments add-on, when enabled.
+  unit: USD
+  aggregation: sum
+  dimensions:
+  - account
+  - location
+- name: addon_subscriptions
+  description: Optional add-ons billed separately from the base subscription (two-way SMS, employee scheduling, messaging bundles).
+  unit: subscriptions
+  aggregation: sum
+  dimensions:
+  - account
+  - addon
+- name: partner_api_usage
+  description: Partner API call volume against api.gingr.io. Not separately metered or billed by Gingr as of the review date; tracked here for internal visibility only.
+  unit: requests
+  aggregation: sum
+  dimensions:
+  - account
+  - endpoint
+principles:
+- name: Visibility
+  description: Track the per-facility subscription tier and any enabled add-ons (payments, SMS, scheduling) against actual usage per location.
+- name: Allocation
+  description: Allocate the monthly subscription and payment-processing costs to the specific facility/subdomain, since Gingr bills and scopes API keys per location.
+- name: Optimization
+  description: Right-size the tier (Spa vs Play vs Stay) to the services a facility actually offers, and evaluate whether Gingr's integrated payments discount versus a third-party processor is net-cheaper.
+- name: Accountability
+  description: Assign an owner per facility/location for the Gingr subscription and its add-ons, especially for multi-location operators with custom enterprise packages.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

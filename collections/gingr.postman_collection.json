@@ -1,0 +1,1805 @@
+{
+  "info": {
+    "name": "Gingr Partner API",
+    "description": "Owners, pets, bookings/reservations, services, invoices, payments, vaccinations, report cards, and waitlist management for Gingr's pet-care business management Partner API. Base URL: https://api.gingr.io. Every request requires X-Api-Key, subdomain, and Accept: application/vnd.api+json headers.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Api-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.gingr.io",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subdomain",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Owners",
+      "item": [
+        {
+          "name": "List owners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents"
+              ]
+            },
+            "description": "Lists owner (parent) records, filterable by name, email, phone, home location, or created date range."
+          }
+        },
+        {
+          "name": "Create an owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents"
+              ]
+            },
+            "description": "Creates a new owner (parent) record.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"parents\",\n    \"attributes\": {\n      \"firstName\": \"TestFirst\",\n      \"lastName\": \"TestLast\",\n      \"address1\": \"123 Test Street\",\n      \"city\": \"Atlanta\",\n      \"region\": \"Georgia\",\n      \"zip\": \"30301\",\n      \"contact\": {\n        \"email\": \"test@example.com\",\n        \"cellPhone\": \"555-987-6543\"\n      }\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get an owner",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents/:parentId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents",
+                ":parentId"
+              ],
+              "variable": [
+                {
+                  "key": "parentId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Retrieves a single owner (parent) record by ID."
+          }
+        },
+        {
+          "name": "Update an owner",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents/:parentId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents",
+                ":parentId"
+              ],
+              "variable": [
+                {
+                  "key": "parentId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Updates an existing owner (parent) record.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"parents\",\n    \"attributes\": {}\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete an owner",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents/:parentId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents",
+                ":parentId"
+              ],
+              "variable": [
+                {
+                  "key": "parentId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Deletes an owner (parent) record."
+          }
+        },
+        {
+          "name": "Validate email uniqueness",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents/validate-email?email=test@example.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents",
+                "validate-email"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "test@example.com"
+                }
+              ]
+            },
+            "description": "Checks whether an email address already belongs to an owner record."
+          }
+        },
+        {
+          "name": "Validate phone uniqueness",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents/validate-phone?phone=555-987-6543",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents",
+                "validate-phone"
+              ],
+              "query": [
+                {
+                  "key": "phone",
+                  "value": "555-987-6543"
+                }
+              ]
+            },
+            "description": "Checks whether a phone number already belongs to an owner record."
+          }
+        },
+        {
+          "name": "Merge two owners",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/parents/merge",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "parents",
+                "merge"
+              ]
+            },
+            "description": "Merges a duplicate owner (parent) record into a surviving record.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"sourceParentId\": 0,\n      \"targetParentId\": 0\n    }\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pets",
+      "item": [
+        {
+          "name": "List pets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets"
+              ]
+            },
+            "description": "Lists pet profiles, filterable by owner, species, or breed."
+          }
+        },
+        {
+          "name": "Create a pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets"
+              ]
+            },
+            "description": "Creates a new pet profile belonging to an owner.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"attributes\": {\n      \"name\": \"Abby\",\n      \"sex\": \"Female\",\n      \"weight\": 16,\n      \"birthday\": \"2012-08-27\",\n      \"parentId\": 0\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get a pet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/:petId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                ":petId"
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Retrieves a single pet profile by ID, including breed, feeding, and medication data."
+          }
+        },
+        {
+          "name": "Update a pet",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/:petId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                ":petId"
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Updates an existing pet profile.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"attributes\": {}\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete a pet",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/:petId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                ":petId"
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Deletes a pet profile."
+          }
+        },
+        {
+          "name": "Merge two pets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/merge",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                "merge"
+              ]
+            },
+            "description": "Merges a duplicate pet record into a surviving record.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {}\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "List bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "Lists bookings/reservations, filterable by created/booking date range, status, owner, pet, or location."
+          }
+        },
+        {
+          "name": "Create a booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "Creates a new booking/reservation for a pet.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"bookings\",\n    \"attributes\": {\n      \"parentId\": 0,\n      \"petIds\": [\n        0\n      ],\n      \"bookingTypeId\": 0,\n      \"locationId\": 0,\n      \"bookingStart\": \"2026-08-01T10:00:00Z\",\n      \"bookingEnd\": \"2026-08-03T10:00:00Z\"\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get a booking",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Retrieves a single booking/reservation by ID."
+          }
+        },
+        {
+          "name": "Update a booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Updates an existing booking/reservation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"bookings\",\n    \"attributes\": {}\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel a booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "cancel"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Cancels a booking, optionally recording a cancellation reason.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"cancellationReasonId\": 0\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Check in a booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId/check-in",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "check-in"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Checks a booking in, marking status checked_in."
+          }
+        },
+        {
+          "name": "Checkout a booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "checkout"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Checks a booking out, typically generating an invoice."
+          }
+        },
+        {
+          "name": "Estimate a booking",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId/estimate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "estimate"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Returns an estimated price for a booking based on its configured services and dates."
+          }
+        },
+        {
+          "name": "Add a service to a booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId/services",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "services"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Adds a service to an existing booking.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"serviceTypeId\": 0\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "List available lodgings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/available-lodgings?filter[bookingStart]=2026-08-01&filter[bookingEnd]=2026-08-03",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                "available-lodgings"
+              ],
+              "query": [
+                {
+                  "key": "filter[bookingStart]",
+                  "value": "2026-08-01"
+                },
+                {
+                  "key": "filter[bookingEnd]",
+                  "value": "2026-08-03"
+                }
+              ]
+            },
+            "description": "Returns the lodgings (kennels/runs/suites) available for a given date range."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "List service types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/service-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "service-types"
+              ]
+            },
+            "description": "Lists the facility's configured service types (e.g. daycare, boarding, grooming, training add-ons)."
+          }
+        },
+        {
+          "name": "Get a service type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/service-types/:serviceTypeId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "service-types",
+                ":serviceTypeId"
+              ],
+              "variable": [
+                {
+                  "key": "serviceTypeId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Retrieves detailed information for a specific service type."
+          }
+        },
+        {
+          "name": "List booking types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/booking-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "booking-types"
+              ]
+            },
+            "description": "Lists the facility's configured booking types."
+          }
+        },
+        {
+          "name": "List lodgings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/lodgings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "lodgings"
+              ]
+            },
+            "description": "Lists the facility's configured lodgings (kennels/runs/suites)."
+          }
+        },
+        {
+          "name": "List locations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "locations"
+              ]
+            },
+            "description": "Lists the facility's locations, for multi-location Gingr accounts."
+          }
+        },
+        {
+          "name": "Get a location",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/locations/:locationId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "locations",
+                ":locationId"
+              ],
+              "variable": [
+                {
+                  "key": "locationId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Retrieves a single location by ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices & Payments",
+      "item": [
+        {
+          "name": "List invoices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "invoices"
+              ]
+            },
+            "description": "Lists invoices, filterable by owner."
+          }
+        },
+        {
+          "name": "Get an invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoices/:invoiceId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "invoices",
+                ":invoiceId"
+              ],
+              "variable": [
+                {
+                  "key": "invoiceId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Retrieves a single invoice with line items."
+          }
+        },
+        {
+          "name": "List invoice charges",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoices/charges",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "invoices",
+                "charges"
+              ]
+            },
+            "description": "Lists individual charge line items across invoices."
+          }
+        },
+        {
+          "name": "Refund invoice items",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoices/:invoiceId/refund-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "invoices",
+                ":invoiceId",
+                "refund-items"
+              ],
+              "variable": [
+                {
+                  "key": "invoiceId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Refunds specific line items on an invoice.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"itemIds\": [\n        0\n      ],\n      \"refundReasonId\": 0\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Charge a card on file",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/payments/charge",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "payments",
+                "charge"
+              ]
+            },
+            "description": "Charges an owner's card on file for an arbitrary amount, outside of a specific invoice.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"parentId\": 0,\n      \"amount\": 0\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Pay an invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/payments/invoices/:invoiceId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "payments",
+                "invoices",
+                ":invoiceId"
+              ],
+              "variable": [
+                {
+                  "key": "invoiceId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Pays an invoice using an owner's card on file.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {}\n}"
+            }
+          }
+        },
+        {
+          "name": "Refund an invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/payments/invoices/:invoiceId/refund",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "payments",
+                "invoices",
+                ":invoiceId",
+                "refund"
+              ],
+              "variable": [
+                {
+                  "key": "invoiceId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Refunds a paid invoice.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {}\n}"
+            }
+          }
+        },
+        {
+          "name": "Pay a deposit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/payments/deposits/:depositId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "payments",
+                "deposits",
+                ":depositId"
+              ],
+              "variable": [
+                {
+                  "key": "depositId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Pays a deposit for a booking.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {}\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vaccinations",
+      "item": [
+        {
+          "name": "List a pet's immunizations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/:petId/immunizations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                ":petId",
+                "immunizations"
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Lists a pet's immunization/vaccination records against the facility's configured immunization types."
+          }
+        },
+        {
+          "name": "Update a pet's immunization",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/:petId/immunizations/:immunizationTypeId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                ":petId",
+                "immunizations",
+                ":immunizationTypeId"
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": ""
+                },
+                {
+                  "key": "immunizationTypeId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Records or updates a pet's immunization/vaccination date and expiration.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"administeredDate\": \"2026-01-15\",\n      \"expirationDate\": \"2027-01-15\"\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "List expired immunizations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/immunization/expired",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                "immunization",
+                "expired"
+              ]
+            },
+            "description": "Facility-wide list of expired pet immunizations, for compliance follow-up before check-in."
+          }
+        },
+        {
+          "name": "List immunization types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/immunization-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "immunization-types"
+              ]
+            },
+            "description": "Lists the immunization/vaccination types the facility requires or tracks."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report Cards",
+      "item": [
+        {
+          "name": "List a pet's report cards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/:petId/report-cards?filter[locationId]=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                ":petId",
+                "report-cards"
+              ],
+              "query": [
+                {
+                  "key": "filter[locationId]",
+                  "value": "0"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Lists the daily activity report cards generated for a pet, scoped to a location."
+          }
+        },
+        {
+          "name": "Get a report card",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/:petId/report-cards/:reportCardId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                ":petId",
+                "report-cards",
+                ":reportCardId"
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": ""
+                },
+                {
+                  "key": "reportCardId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Retrieves a single report card, including notes and activities."
+          }
+        },
+        {
+          "name": "List report card media",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/pets/report-card-media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "pets",
+                "report-card-media"
+              ]
+            },
+            "description": "Lists photo/video media attached to report cards."
+          }
+        },
+        {
+          "name": "Get report card form configuration",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/config/report-card-form",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "config",
+                "report-card-form"
+              ]
+            },
+            "description": "Returns the facility's configured report card form fields."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Waitlist",
+      "item": [
+        {
+          "name": "Move a booking to the waitlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId/wait-list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "wait-list"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Moves a booking to wait_listed status, typically because the requested location or lodging is at capacity."
+          }
+        },
+        {
+          "name": "Accept a booking off the waitlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings/:bookingId/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "accept"
+              ],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Accepts a wait-listed or pending booking off the waitlist/queue and confirms it."
+          }
+        },
+        {
+          "name": "List wait-listed bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "subdomain",
+                "value": "{{subdomain}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings?filter[status][type]=wait_listed&filter[status][from]=2026-01-01&filter[status][to]=2026-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter[status][type]",
+                  "value": "wait_listed"
+                },
+                {
+                  "key": "filter[status][from]",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "filter[status][to]",
+                  "value": "2026-12-31"
+                }
+              ]
+            },
+            "description": "Lists bookings currently in wait_listed status within a date range."
+          }
+        }
+      ]
+    }
+  ]
+}

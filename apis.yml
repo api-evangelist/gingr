@@ -1,0 +1,189 @@
+aid: gingr
+url: https://raw.githubusercontent.com/api-evangelist/gingr/refs/heads/main/apis.yml
+name: Gingr
+kind: company
+description: Gingr is pet-care business management software for dog daycare, boarding,
+  training, and grooming facilities, covering reservations, check-in/checkout,
+  client and pet records, feeding and medication schedules, immunizations, report
+  cards, point of sale, and payments. Gingr publishes a JSON:API-style Partner API
+  (api.gingr.io, X-Api-Key header, live OpenAPI/Swagger and Postman collection at
+  docs.gingr.io) covering owners (parents), pets, bookings/reservations, invoices
+  and payments, immunizations, and report cards, alongside an older subdomain-scoped
+  legacy reporting API used for read-only pulls of owners and reservations.
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- Pet Care
+- Pet Daycare
+- Boarding
+- Grooming
+- Vertical SaaS
+- Scheduling
+- Payments
+created: '2026-07-04'
+modified: '2026-07-04'
+specificationVersion: '0.19'
+apis:
+- aid: gingr:gingr-owners-api
+  name: Gingr Owners API
+  tags:
+  - Owners
+  - Clients
+  - Parents
+  - CRM
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: Manage owner/client (called "parents" in Gingr) records - create,
+    list, search, update, delete, and merge duplicate parent accounts; validate
+    email/phone uniqueness; manage cards on file, store credit, reward points,
+    memberships, packages, subscriptions, and signed agreements for each owner.
+- aid: gingr:gingr-pets-api
+  name: Gingr Pets API
+  tags:
+  - Pets
+  - Animals
+  - Profiles
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: Manage pet profiles belonging to an owner - create, list, get,
+    update, delete, and merge pets; manage feeding schedules and medication
+    schedules attached to a pet, and pet-level employee notes.
+- aid: gingr:gingr-reservations-api
+  name: Gingr Reservations API
+  tags:
+  - Reservations
+  - Bookings
+  - Scheduling
+  - Check-In
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: Create and manage bookings/reservations for daycare, boarding,
+    training, and grooming - list and filter by date, status, pet, or location;
+    check availability of lodgings and specialists; check in, check out, accept,
+    cancel, and estimate pricing for a booking; add services to an existing
+    booking.
+- aid: gingr:gingr-services-api
+  name: Gingr Services API
+  tags:
+  - Services
+  - Booking Types
+  - Locations
+  - Lodgings
+  - Configuration
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: Read the facility's service catalog and operational configuration -
+    service types and rates, booking types and categories, lodgings, locations,
+    hours of operation, and package/membership types offered to owners.
+- aid: gingr:gingr-invoices-payments-api
+  name: Gingr Invoices & Payments API
+  tags:
+  - Invoices
+  - Payments
+  - Point of Sale
+  - Billing
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: List and retrieve invoices and charges, refund invoice line items,
+    charge a card on file, pay or refund an invoice or a deposit. Complements
+    the point-of-sale and billing flows inside the Gingr application.
+- aid: gingr:gingr-vaccinations-api
+  name: Gingr Vaccinations API
+  tags:
+  - Vaccinations
+  - Immunizations
+  - Compliance
+  - Health Records
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: List and update a pet's immunization/vaccination records against
+    the facility's configured immunization types, and pull a facility-wide list
+    of expired pet immunizations for compliance follow-up before boarding or
+    daycare check-in.
+- aid: gingr:gingr-report-cards-api
+  name: Gingr Report Cards API
+  tags:
+  - Report Cards
+  - Media
+  - Owner Communication
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: Read the daily report cards Gingr generates for a pet's stay -
+    activities, notes, and attached photo/video media shared back with the
+    owner - plus the facility's configured report card form fields.
+- aid: gingr:gingr-waitlist-api
+  name: Gingr Waitlist API
+  tags:
+  - Waitlist
+  - Capacity
+  - Bookings
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  properties:
+  - url: https://docs.gingr.io/documentation
+    type: Documentation
+  - url: openapi/gingr-openapi.yml
+    type: OpenAPI
+  description: Move a booking onto the waitlist when a facility is at capacity,
+    and list/filter bookings by the wait_listed status to work the queue as
+    space opens up.
+common:
+- type: LinkedIn
+  url: https://www.linkedin.com/company/gingr-llc
+- type: Website
+  url: https://www.gingrapp.com
+- type: Documentation
+  url: https://support.gingrapp.com/hc/en-us
+- type: Plans
+  url: plans/gingr-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/gingr-rate-limits.yml
+- type: FinOps
+  url: finops/gingr-finops.yml
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

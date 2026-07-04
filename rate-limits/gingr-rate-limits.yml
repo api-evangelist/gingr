@@ -1,0 +1,61 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Gingr
+providerId: gingr
+created: '2026-07-04'
+modified: '2026-07-04'
+reconciled: false
+tags:
+- Pet Care
+- Pet Daycare
+- Rate Limiting
+- Quotas
+description: >-
+  Gingr does not publish fixed numeric rate limits for the Partner API
+  (api.gingr.io) in its public OpenAPI/Swagger document, Postman collection,
+  or support articles. Access is scoped per facility via an X-Api-Key header
+  plus a subdomain header identifying the account; there is no documented
+  requests-per-minute ceiling, burst limit, or published 429 policy. Most list
+  endpoints are cursor/offset paginated with a page[size] enum capped at 100
+  items per page, which caps the practical cost of any single request rather
+  than the request rate itself.
+notes: >-
+  Numeric per-key or per-account request-rate limits are not documented as of
+  the review date. Treat page[size]=100 as the practical per-request ceiling
+  for list endpoints, and confirm any account-specific throttling directly
+  with Gingr support, since the docs explicitly state their support and
+  development teams do not provide implementation guidance for third-party
+  integrations.
+sources:
+- https://docs.gingr.io/documentation
+- https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+- https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
+responseCodes:
+  throttled: 429
+limits:
+- name: Partner API Requests
+  scope: account
+  metric: requests
+  limit: not published
+  notes: No fixed numeric request-rate limit is documented for api.gingr.io.
+- name: List Endpoint Page Size
+  scope: request
+  metric: items
+  limit: 100
+  notes: page[size] is an enumerated value (10, 25, 50, or 100) on most list endpoints; 100 is the largest documented page.
+- name: API Key Scope
+  scope: account
+  metric: keys
+  limit: per facility subdomain
+  notes: >-
+    Each X-Api-Key is issued per Gingr account/subdomain from the Manage
+    Account API area; it is not a shared or platform-wide key.
+policies:
+- name: Read-Only Legacy Endpoints
+  description: Gingr's older subdomain-scoped reporting endpoints (referenced in legacy support articles) are documented as read-only; the current Partner API adds full CRUD on owners, pets, and bookings.
+- name: No Published Backoff Guidance
+  description: Gingr's public docs do not specify a Retry-After header or backoff recommendation; integrators should apply conservative exponential backoff on 429/5xx responses as a precaution.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

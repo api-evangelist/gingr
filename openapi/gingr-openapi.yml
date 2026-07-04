@@ -1,0 +1,1381 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner API
+  description: >-
+    Gingr's Partner API for pet-care business management software (dog daycare,
+    boarding, training, and grooming). The API is JSON:API-flavored - request
+    and response bodies wrap resource attributes under a `data` object - and
+    every request must send a `subdomain` header identifying the facility's
+    Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints
+    below are a curated subset (owners/parents, pets, bookings/reservations,
+    services and configuration, invoices/payments, immunizations, report
+    cards, and waitlist) drawn from Gingr's official public OpenAPI document at
+    https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which
+    documents 158 operations in total. This document is a representative
+    subset, not a full mirror; consult the live swagger.json for every
+    operation, filter, and field.
+  version: '1.8.0'
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+  - url: https://api.gingr.io
+    description: Gingr Partner API (production)
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Owners
+    description: Owner/client ("parent") records.
+  - name: Pets
+    description: Pet profiles belonging to an owner.
+  - name: Reservations
+    description: Bookings/reservations for daycare, boarding, training, and grooming.
+  - name: Services
+    description: Service catalog and facility configuration.
+  - name: Invoices
+    description: Invoices and charges.
+  - name: Payments
+    description: Charging and refunding cards on file, invoices, and deposits.
+  - name: Vaccinations
+    description: Pet immunization/vaccination records.
+  - name: Report Cards
+    description: Daily activity report cards generated for a pet's stay.
+  - name: Waitlist
+    description: Managing bookings that are on the facility waitlist.
+paths:
+  /v1/parents:
+    get:
+      operationId: v1ParentsList
+      tags:
+        - Owners
+      summary: Parents - List
+      description: Lists owner ("parent") records, filterable by name, email, phone, home location, or created date range.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: filter[firstName]
+          in: query
+          required: false
+          schema: { type: string, minLength: 3, maxLength: 255 }
+        - name: filter[lastName]
+          in: query
+          required: false
+          schema: { type: string, minLength: 3, maxLength: 255 }
+        - name: filter[contact][email]
+          in: query
+          required: false
+          schema: { type: string, format: email }
+        - name: filter[homeLocationIds]
+          in: query
+          required: false
+          schema: { type: array, items: { type: integer } }
+        - name: page[size]
+          in: query
+          required: false
+          schema: { type: integer, enum: [10, 25, 50, 100] }
+        - name: page[number]
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A page of parent resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: v1ParentsCreate
+      tags:
+        - Owners
+      summary: Parents - Create
+      description: Creates a new owner ("parent") record with required contact and address information.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/ParentCreateRequest'
+      responses:
+        '200':
+          description: The created parent resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/parents/{parentId}:
+    parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: parentId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: v1ParentsDetails
+      tags:
+        - Owners
+      summary: Parents - Details
+      description: Retrieves a single owner ("parent") record by ID.
+      responses:
+        '200':
+          description: The requested parent resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: v1ParentsUpdate
+      tags:
+        - Owners
+      summary: Parents - Update
+      description: Updates an existing owner ("parent") record.
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/ParentCreateRequest'
+      responses:
+        '200':
+          description: The updated parent resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: v1ParentsDelete
+      tags:
+        - Owners
+      summary: Parents - Delete
+      description: Deletes an owner ("parent") record.
+      responses:
+        '200':
+          description: Deletion confirmation.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/parents/validate-email:
+    get:
+      operationId: v1ParentsValidateEmail
+      tags:
+        - Owners
+      summary: Validate if an email address is already registered
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: email
+          in: query
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Whether the email address already belongs to an owner record.
+  /v1/parents/validate-phone:
+    get:
+      operationId: v1ParentsValidatePhone
+      tags:
+        - Owners
+      summary: Validate if a phone number is already registered
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: phone
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Whether the phone number already belongs to an owner record.
+  /v1/parents/merge:
+    post:
+      operationId: v1ParentsMerge
+      tags:
+        - Owners
+      summary: Merge two parent accounts
+      description: Merges a duplicate owner ("parent") record into a surviving record.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        sourceParentId: { type: integer }
+                        targetParentId: { type: integer }
+      responses:
+        '200':
+          description: Merge confirmation.
+  /v1/pets:
+    get:
+      operationId: v1PetsList
+      tags:
+        - Pets
+      summary: Pets - List
+      description: Lists pet profiles, filterable by name, owner, species, or breed.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: filter[parentId]
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: page[size]
+          in: query
+          required: false
+          schema: { type: integer, enum: [10, 25, 50, 100] }
+        - name: page[number]
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A page of pet resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PetListResponse'
+    post:
+      operationId: v1PetsCreate
+      tags:
+        - Pets
+      summary: Pets - Create
+      description: Creates a new pet profile belonging to an owner.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/PetCreateRequest'
+      responses:
+        '200':
+          description: The created pet resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PetResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/pets/{petId}:
+    parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: petId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: v1PetsDetails
+      tags:
+        - Pets
+      summary: Pets - Details
+      description: Retrieves a single pet profile by ID, including breed, feeding, and medication data.
+      responses:
+        '200':
+          description: The requested pet resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PetResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: v1PetsUpdate
+      tags:
+        - Pets
+      summary: Pets - Update
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/PetCreateRequest'
+      responses:
+        '200':
+          description: The updated pet resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: v1PetsDelete
+      tags:
+        - Pets
+      summary: Delete Pet
+      responses:
+        '200':
+          description: Deletion confirmation.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/pets/merge:
+    post:
+      operationId: v1PetsMerge
+      tags:
+        - Pets
+      summary: Pets - Merge
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Merge confirmation.
+  /v1/bookings:
+    get:
+      operationId: v1BookingsList
+      tags:
+        - Reservations
+      summary: Bookings - List
+      description: >-
+        Lists bookings/reservations, filterable by created date range, booking
+        start/end date range, status (completed, cancelled, checked_in,
+        confirmed, pending_acceptance, wait_listed, unconfirmed), owner, pet,
+        location, or booking category.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: filter[status][type]
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [completed, cancelled, checked_in, confirmed, pending_acceptance, wait_listed, unconfirmed]
+        - name: filter[status][from]
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: filter[status][to]
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: filter[parentId]
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: filter[petIds]
+          in: query
+          required: false
+          schema: { type: array, items: { type: integer } }
+        - name: filter[locationIds]
+          in: query
+          required: false
+          schema: { type: array, items: { type: integer } }
+        - name: page[size]
+          in: query
+          required: false
+          schema: { type: integer, enum: [10, 25, 50, 100] }
+        - name: page[number]
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A page of booking resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingListResponse'
+    post:
+      operationId: v1BookingsCreate
+      tags:
+        - Reservations
+      summary: Bookings - Create
+      description: Creates a new booking/reservation for a pet.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateRequest'
+      responses:
+        '200':
+          description: The created booking resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/bookings/{bookingId}:
+    parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: bookingId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: v1BookingsDetails
+      tags:
+        - Reservations
+      summary: Bookings - Details
+      responses:
+        '200':
+          description: The requested booking resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: v1BookingsUpdate
+      tags:
+        - Reservations
+      summary: Bookings - Update
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateRequest'
+      responses:
+        '200':
+          description: The updated booking resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/bookings/{bookingId}/cancel:
+    put:
+      operationId: v1BookingsCancel
+      tags:
+        - Reservations
+      summary: Bookings - Cancel
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        cancellationReasonId: { type: integer }
+      responses:
+        '200':
+          description: The cancelled booking resource.
+  /v1/bookings/{bookingId}/check-in:
+    post:
+      operationId: v1BookingCheckIn
+      tags:
+        - Reservations
+      summary: Check In Booking
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The checked-in booking resource.
+  /v1/bookings/{bookingId}/checkout:
+    post:
+      operationId: v1BookingsCheckout
+      tags:
+        - Reservations
+      summary: Bookings - Checkout
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The checked-out booking resource, typically generating an invoice.
+  /v1/bookings/{bookingId}/estimate:
+    get:
+      operationId: v1BookingEstimate
+      tags:
+        - Reservations
+      summary: Booking - Estimate
+      description: Returns an estimated price for a booking based on its configured services and dates.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Estimated pricing breakdown for the booking.
+  /v1/bookings/{bookingId}/services:
+    put:
+      operationId: v1BookingAddService
+      tags:
+        - Reservations
+      summary: Add Service to Booking
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        serviceTypeId: { type: integer }
+      responses:
+        '200':
+          description: The updated booking resource with the added service.
+  /v1/bookings/available-lodgings:
+    get:
+      operationId: v1BookingsAvailableLodgings
+      tags:
+        - Reservations
+      summary: Bookings Available Lodgings
+      description: Returns the lodgings (kennels/runs/suites) available for a given date range and booking type.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: filter[bookingStart]
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: filter[bookingEnd]
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: A list of available lodgings.
+  /v1/bookings/{bookingId}/wait-list:
+    post:
+      operationId: v1BookingMoveToWaitList
+      tags:
+        - Waitlist
+      summary: Move Booking to Wait List
+      description: Moves a booking to wait_listed status, typically because the requested location or lodging is at capacity.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The booking resource with status set to wait_listed and a waitListDate recorded.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+  /v1/bookings/{bookingId}/accept:
+    post:
+      operationId: v1BookingsAccept
+      tags:
+        - Waitlist
+      summary: Bookings - Accept
+      description: Accepts a wait-listed or pending booking off the waitlist/queue and confirms it, recording a waitListAcceptedDate when applicable.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The accepted/confirmed booking resource.
+  /v1/config/service-types:
+    get:
+      operationId: v1ConfigServiceTypes
+      tags:
+        - Services
+      summary: Service Types - List
+      description: Lists the facility's configured service types (e.g. daycare, boarding, grooming, training add-ons).
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: page[size]
+          in: query
+          required: false
+          schema: { type: integer, enum: [10, 25, 50, 100] }
+        - name: page[number]
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A page of service type resources.
+  /v1/config/service-types/{serviceTypeId}:
+    get:
+      operationId: v1ConfigServiceTypeDetails
+      tags:
+        - Services
+      summary: Retrieve detailed information for a specific service type
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: serviceTypeId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The requested service type resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/config/booking-types:
+    get:
+      operationId: v1ConfigBookingTypes
+      tags:
+        - Services
+      summary: Retrieve a paginated list of booking types
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: filter[bookingCategoryId]
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: filter[locationIds]
+          in: query
+          required: false
+          schema: { type: array, items: { type: integer } }
+        - name: filter[appointmentBased]
+          in: query
+          required: false
+          schema: { type: boolean }
+        - name: page[size]
+          in: query
+          required: false
+          schema: { type: integer, enum: [10, 25, 50, 100] }
+        - name: page[number]
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A page of booking type resources.
+  /v1/config/lodgings:
+    get:
+      operationId: v1ConfigLodgings
+      tags:
+        - Services
+      summary: Lodgings - List
+      description: Lists the facility's configured lodgings (kennels/runs/suites).
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of lodging resources.
+  /v1/config/locations:
+    get:
+      operationId: v1ConfigLocations
+      tags:
+        - Services
+      summary: Location - List
+      description: Lists the facility's locations, for multi-location Gingr accounts.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: filter[active]
+          in: query
+          required: false
+          schema: { type: boolean }
+        - name: filter[locationName]
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: A list of location resources.
+  /v1/config/locations/{locationId}:
+    get:
+      operationId: v1ConfigLocationDetails
+      tags:
+        - Services
+      summary: Location - Detail
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The requested location resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/invoices:
+    get:
+      operationId: v1InvoicesList
+      tags:
+        - Invoices
+      summary: Invoices - List
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: filter[parentId]
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: page[size]
+          in: query
+          required: false
+          schema: { type: integer, enum: [10, 25, 50, 100] }
+        - name: page[number]
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A page of invoice resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+  /v1/invoices/{invoiceId}:
+    get:
+      operationId: v1InvoiceDetails
+      tags:
+        - Invoices
+      summary: Invoice - Details
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: invoiceId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The requested invoice resource with line items.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/InvoiceResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/invoices/charges:
+    get:
+      operationId: v1InvoicesCharges
+      tags:
+        - Invoices
+      summary: Invoices - Charges
+      description: Lists individual charge line items across invoices.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of charge line items.
+  /v1/invoices/{invoiceId}/refund-items:
+    post:
+      operationId: v1InvoicesRefundItems
+      tags:
+        - Invoices
+      summary: Invoices - Refund Items
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: invoiceId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        itemIds: { type: array, items: { type: integer } }
+                        refundReasonId: { type: integer }
+      responses:
+        '200':
+          description: Refund confirmation for the specified invoice line items.
+  /v1/payments/charge:
+    post:
+      operationId: v1PaymentsCharge
+      tags:
+        - Payments
+      summary: Payment - Charge
+      description: Charges an owner's card on file for an arbitrary amount, outside of a specific invoice.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        parentId: { type: integer }
+                        amount: { type: number, format: float }
+      responses:
+        '200':
+          description: Charge confirmation.
+  /v1/payments/invoices/{invoiceId}:
+    post:
+      operationId: v1PaymentsPayInvoice
+      tags:
+        - Payments
+      summary: Payments - Pay Invoice
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: invoiceId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Payment confirmation for the invoice.
+  /v1/payments/invoices/{invoiceId}/refund:
+    post:
+      operationId: v1PaymentsRefundInvoice
+      tags:
+        - Payments
+      summary: Payments - Refund Invoices
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: invoiceId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Refund confirmation for the invoice.
+  /v1/payments/deposits/{depositId}:
+    post:
+      operationId: v1PaymentsPayDeposit
+      tags:
+        - Payments
+      summary: Payments - Pay Deposit
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: depositId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Payment confirmation for the deposit.
+  /v1/pets/{petId}/immunizations:
+    get:
+      operationId: v1PetsImmunizationsList
+      tags:
+        - Vaccinations
+      summary: Pets Immunizations - List
+      description: Lists a pet's immunization/vaccination records against the facility's configured immunization types.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: petId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: filter[isExpired]
+          in: query
+          required: false
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: A list of the pet's immunization records.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ImmunizationListResponse'
+  /v1/pets/{petId}/immunizations/{immunizationTypeId}:
+    put:
+      operationId: v1PetsImmunizationsUpdate
+      tags:
+        - Vaccinations
+      summary: Pets Immunizations - Update
+      description: Records or updates a pet's immunization/vaccination date and expiration for a given immunization type.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - $ref: '#/components/parameters/ContentType'
+        - name: petId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: immunizationTypeId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        administeredDate: { type: string, format: date }
+                        expirationDate: { type: string, format: date }
+      responses:
+        '200':
+          description: The updated immunization record.
+  /v1/pets/immunization/expired:
+    get:
+      operationId: v1PetsImmunizationExpired
+      tags:
+        - Vaccinations
+      summary: Retrieve expired pet immunizations
+      description: Facility-wide list of expired pet immunizations, for compliance follow-up before check-in.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of expired immunization records across pets.
+  /v1/config/immunization-types:
+    get:
+      operationId: v1ConfigImmunizationTypes
+      tags:
+        - Vaccinations
+      summary: Immunization Types - List
+      description: Lists the immunization/vaccination types the facility requires or tracks (e.g. Rabies, Bordetella, DHPP).
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of configured immunization types.
+  /v1/pets/{petId}/report-cards:
+    get:
+      operationId: v1PetsReportCardsList
+      tags:
+        - Report Cards
+      summary: Pets Report Cards - List
+      description: Lists the daily activity report cards generated for a pet, scoped to a location.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: petId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: filter[locationId]
+          in: query
+          required: true
+          schema: { type: integer }
+        - name: page[size]
+          in: query
+          required: false
+          schema: { type: integer, enum: [10, 25, 50, 100] }
+        - name: page[number]
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A page of report card resources for the pet.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ReportCardListResponse'
+  /v1/pets/{petId}/report-cards/{reportCardId}:
+    get:
+      operationId: v1ReportCardDetails
+      tags:
+        - Report Cards
+      summary: Report Cards - Details
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+        - name: petId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: reportCardId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The requested report card, including notes and activities.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/pets/report-card-media:
+    get:
+      operationId: v1ReportCardMediaList
+      tags:
+        - Report Cards
+      summary: Report Card Media - List
+      description: Lists photo/video media attached to report cards.
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of report card media items.
+  /v1/config/report-card-form:
+    get:
+      operationId: v1ConfigReportCardForm
+      tags:
+        - Report Cards
+      summary: Get Report Card Form Configuration
+      description: Returns the facility's configured report card form fields (activities, ratings, notes sections).
+      parameters:
+        - $ref: '#/components/parameters/Subdomain'
+        - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: The report card form configuration.
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: >-
+        API key issued per Gingr account from the "Manage Account" > API area
+        of the Gingr console. Every request additionally requires a
+        `subdomain` header identifying the Gingr account, and an
+        `Accept: application/vnd.api+json` header.
+  parameters:
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  responses:
+    Unauthorized:
+      description: Missing or invalid X-Api-Key or subdomain header.
+    NotFound:
+      description: The requested resource was not found.
+    ValidationError:
+      description: The request payload failed validation.
+  schemas:
+    ParentAttributes:
+      type: object
+      properties:
+        firstName: { type: string, maxLength: 255, example: TestFirstGAPI }
+        lastName: { type: string, maxLength: 255, example: TestLastGAPI }
+        address1: { type: string, maxLength: 255 }
+        address2: { type: string, maxLength: 255 }
+        city: { type: string, maxLength: 255 }
+        region: { type: string, maxLength: 255 }
+        zip: { type: string, maxLength: 20 }
+        contact:
+          type: object
+          properties:
+            email: { type: string, format: email }
+            homePhone: { type: string }
+            cellPhone: { type: string }
+    ParentCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type: { type: string, example: parents }
+            attributes:
+              $ref: '#/components/schemas/ParentAttributes'
+    ParentResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type: { type: string, example: parents }
+            id: { type: integer }
+            attributes:
+              $ref: '#/components/schemas/ParentAttributes'
+    ParentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParentResponse'
+    PetAttributes:
+      type: object
+      properties:
+        name: { type: string, example: Abby }
+        sex: { type: string, example: Female }
+        weight: { type: integer }
+        birthday: { type: string, format: date }
+        parentId: { type: integer }
+        breed:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            color: { type: string }
+        feeding:
+          type: object
+          properties:
+            notes: { type: string }
+            method: { type: string }
+            type: { type: string }
+    PetCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type: { type: string, example: pets }
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
+    PetResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type: { type: string, example: pets }
+            id: { type: integer }
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
+    PetListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PetResponse'
+    BookingAttributes:
+      type: object
+      properties:
+        parentId: { type: integer, example: 1707 }
+        petIds: { type: array, items: { type: integer }, example: [2661] }
+        bookingTypeId: { type: integer }
+        locationId: { type: integer }
+        bookingStart: { type: string, format: date-time, example: '2024-03-01T10:30:00Z' }
+        bookingEnd: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [completed, cancelled, checked_in, confirmed, pending_acceptance, wait_listed, unconfirmed]
+        waitListDate: { type: string, format: date-time, nullable: true }
+        waitListAcceptedDate: { type: string, format: date-time, nullable: true }
+    BookingCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type: { type: string, example: bookings }
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
+    BookingResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type: { type: string, example: bookings }
+            id: { type: integer }
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
+    BookingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookingResponse'
+    InvoiceAttributes:
+      type: object
+      properties:
+        parentId: { type: integer }
+        bookingId: { type: integer }
+        total: { type: number, format: float }
+        balance: { type: number, format: float }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+        lineItems:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              description: { type: string }
+              amount: { type: number, format: float }
+    InvoiceResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type: { type: string, example: invoices }
+            id: { type: integer }
+            attributes:
+              $ref: '#/components/schemas/InvoiceAttributes'
+    InvoiceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceResponse'
+    ImmunizationAttributes:
+      type: object
+      properties:
+        immunizationTypeId: { type: integer }
+        name: { type: string }
+        administeredDate: { type: string, format: date }
+        expirationDate: { type: string, format: date }
+        isExpired: { type: boolean }
+    ImmunizationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string, example: immunizations }
+              id: { type: integer }
+              attributes:
+                $ref: '#/components/schemas/ImmunizationAttributes'
+    ReportCardAttributes:
+      type: object
+      properties:
+        petId: { type: integer }
+        locationId: { type: integer }
+        date: { type: string, format: date }
+        notes: { type: string }
+        activities:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              rating: { type: string }
+        media:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              url: { type: string, format: uri }
+              type: { type: string, enum: [photo, video] }
+    ReportCardListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string, example: report-cards }
+              id: { type: integer }
+              attributes:
+                $ref: '#/components/schemas/ReportCardAttributes'
