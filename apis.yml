@@ -172,6 +172,10 @@ apis:
     and list/filter bookings by the wait_listed status to work the queue as
     space opens up.
 common:
+- type: DomainSecurity
+  url: security/gingr-domain-security.yml
+- type: Authentication
+  url: authentication/gingr-authentication.yml
 - type: LinkedIn
   url: https://www.linkedin.com/company/gingr-llc
 - type: Website
@@ -184,6 +188,8 @@ common:
   url: rate-limits/gingr-rate-limits.yml
 - type: FinOps
   url: finops/gingr-finops.yml
+- url: https://www.gingrapp.com/blog
+  type: Blog
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
