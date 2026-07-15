@@ -172,6 +172,8 @@ apis:
     and list/filter bookings by the wait_listed status to work the queue as
     space opens up.
 common:
+- type: AgenticAccess
+  url: agentic-access/gingr-agentic-access.yml
 - type: DomainSecurity
   url: security/gingr-domain-security.yml
 - type: Authentication
