@@ -1,0 +1,250 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Pets API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Pets
+  description: Pet profiles belonging to an owner.
+paths:
+  /v1/pets:
+    get:
+      operationId: v1PetsList
+      tags:
+      - Pets
+      summary: Pets - List
+      description: Lists pet profiles, filterable by name, owner, species, or breed.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: filter[parentId]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: A page of pet resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PetListResponse'
+    post:
+      operationId: v1PetsCreate
+      tags:
+      - Pets
+      summary: Pets - Create
+      description: Creates a new pet profile belonging to an owner.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/PetCreateRequest'
+      responses:
+        '200':
+          description: The created pet resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PetResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/pets/{petId}:
+    parameters:
+    - $ref: '#/components/parameters/Subdomain'
+    - $ref: '#/components/parameters/Accept'
+    - name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      operationId: v1PetsDetails
+      tags:
+      - Pets
+      summary: Pets - Details
+      description: Retrieves a single pet profile by ID, including breed, feeding, and medication data.
+      responses:
+        '200':
+          description: The requested pet resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PetResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: v1PetsUpdate
+      tags:
+      - Pets
+      summary: Pets - Update
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/PetCreateRequest'
+      responses:
+        '200':
+          description: The updated pet resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: v1PetsDelete
+      tags:
+      - Pets
+      summary: Delete Pet
+      responses:
+        '200':
+          description: Deletion confirmation.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/pets/merge:
+    post:
+      operationId: v1PetsMerge
+      tags:
+      - Pets
+      summary: Pets - Merge
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Merge confirmation.
+components:
+  schemas:
+    PetCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: pets
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
+    PetResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: pets
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
+    PetAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Abby
+        sex:
+          type: string
+          example: Female
+        weight:
+          type: integer
+        birthday:
+          type: string
+          format: date
+        parentId:
+          type: integer
+        breed:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            color:
+              type: string
+        feeding:
+          type: object
+          properties:
+            notes:
+              type: string
+            method:
+              type: string
+            type:
+              type: string
+    PetListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PetResponse'
+  responses:
+    ValidationError:
+      description: The request payload failed validation.
+    NotFound:
+      description: The requested resource was not found.
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

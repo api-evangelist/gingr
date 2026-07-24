@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Report Cards API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Report Cards
+  description: Daily activity report cards generated for a pet's stay.
+paths:
+  /v1/pets/{petId}/report-cards:
+    get:
+      operationId: v1PetsReportCardsList
+      tags:
+      - Report Cards
+      summary: Pets Report Cards - List
+      description: Lists the daily activity report cards generated for a pet, scoped to a location.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: filter[locationId]
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: A page of report card resources for the pet.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ReportCardListResponse'
+  /v1/pets/{petId}/report-cards/{reportCardId}:
+    get:
+      operationId: v1ReportCardDetails
+      tags:
+      - Report Cards
+      summary: Report Cards - Details
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: reportCardId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The requested report card, including notes and activities.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/pets/report-card-media:
+    get:
+      operationId: v1ReportCardMediaList
+      tags:
+      - Report Cards
+      summary: Report Card Media - List
+      description: Lists photo/video media attached to report cards.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of report card media items.
+  /v1/config/report-card-form:
+    get:
+      operationId: v1ConfigReportCardForm
+      tags:
+      - Report Cards
+      summary: Get Report Card Form Configuration
+      description: Returns the facility's configured report card form fields (activities, ratings, notes sections).
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: The report card form configuration.
+components:
+  schemas:
+    ReportCardAttributes:
+      type: object
+      properties:
+        petId:
+          type: integer
+        locationId:
+          type: integer
+        date:
+          type: string
+          format: date
+        notes:
+          type: string
+        activities:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              rating:
+                type: string
+        media:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              url:
+                type: string
+                format: uri
+              type:
+                type: string
+                enum:
+                - photo
+                - video
+    ReportCardListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                example: report-cards
+              id:
+                type: integer
+              attributes:
+                $ref: '#/components/schemas/ReportCardAttributes'
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

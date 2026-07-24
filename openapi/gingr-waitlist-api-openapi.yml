@@ -1,0 +1,144 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Waitlist API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Waitlist
+  description: Managing bookings that are on the facility waitlist.
+paths:
+  /v1/bookings/{bookingId}/wait-list:
+    post:
+      operationId: v1BookingMoveToWaitList
+      tags:
+      - Waitlist
+      summary: Move Booking to Wait List
+      description: Moves a booking to wait_listed status, typically because the requested location or lodging is at capacity.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The booking resource with status set to wait_listed and a waitListDate recorded.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+  /v1/bookings/{bookingId}/accept:
+    post:
+      operationId: v1BookingsAccept
+      tags:
+      - Waitlist
+      summary: Bookings - Accept
+      description: Accepts a wait-listed or pending booking off the waitlist/queue and confirms it, recording a waitListAcceptedDate when applicable.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The accepted/confirmed booking resource.
+components:
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  schemas:
+    BookingResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: bookings
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
+    BookingAttributes:
+      type: object
+      properties:
+        parentId:
+          type: integer
+          example: 1707
+        petIds:
+          type: array
+          items:
+            type: integer
+          example:
+          - 2661
+        bookingTypeId:
+          type: integer
+        locationId:
+          type: integer
+        bookingStart:
+          type: string
+          format: date-time
+          example: '2024-03-01T10:30:00Z'
+        bookingEnd:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - completed
+          - cancelled
+          - checked_in
+          - confirmed
+          - pending_acceptance
+          - wait_listed
+          - unconfirmed
+        waitListDate:
+          type: string
+          format: date-time
+          nullable: true
+        waitListAcceptedDate:
+          type: string
+          format: date-time
+          nullable: true
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

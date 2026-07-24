@@ -1,0 +1,333 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Owners API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Owners
+  description: Owner/client ("parent") records.
+paths:
+  /v1/parents:
+    get:
+      operationId: v1ParentsList
+      tags:
+      - Owners
+      summary: Parents - List
+      description: Lists owner ("parent") records, filterable by name, email, phone, home location, or created date range.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: filter[firstName]
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 255
+      - name: filter[lastName]
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 255
+      - name: filter[contact][email]
+        in: query
+        required: false
+        schema:
+          type: string
+          format: email
+      - name: filter[homeLocationIds]
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: A page of parent resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: v1ParentsCreate
+      tags:
+      - Owners
+      summary: Parents - Create
+      description: Creates a new owner ("parent") record with required contact and address information.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/ParentCreateRequest'
+      responses:
+        '200':
+          description: The created parent resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/parents/{parentId}:
+    parameters:
+    - $ref: '#/components/parameters/Subdomain'
+    - $ref: '#/components/parameters/Accept'
+    - name: parentId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      operationId: v1ParentsDetails
+      tags:
+      - Owners
+      summary: Parents - Details
+      description: Retrieves a single owner ("parent") record by ID.
+      responses:
+        '200':
+          description: The requested parent resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: v1ParentsUpdate
+      tags:
+      - Owners
+      summary: Parents - Update
+      description: Updates an existing owner ("parent") record.
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/ParentCreateRequest'
+      responses:
+        '200':
+          description: The updated parent resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ParentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: v1ParentsDelete
+      tags:
+      - Owners
+      summary: Parents - Delete
+      description: Deletes an owner ("parent") record.
+      responses:
+        '200':
+          description: Deletion confirmation.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/parents/validate-email:
+    get:
+      operationId: v1ParentsValidateEmail
+      tags:
+      - Owners
+      summary: Validate if an email address is already registered
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+          format: email
+      responses:
+        '200':
+          description: Whether the email address already belongs to an owner record.
+  /v1/parents/validate-phone:
+    get:
+      operationId: v1ParentsValidatePhone
+      tags:
+      - Owners
+      summary: Validate if a phone number is already registered
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: phone
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Whether the phone number already belongs to an owner record.
+  /v1/parents/merge:
+    post:
+      operationId: v1ParentsMerge
+      tags:
+      - Owners
+      summary: Merge two parent accounts
+      description: Merges a duplicate owner ("parent") record into a surviving record.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        sourceParentId:
+                          type: integer
+                        targetParentId:
+                          type: integer
+      responses:
+        '200':
+          description: Merge confirmation.
+components:
+  schemas:
+    ParentCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: parents
+            attributes:
+              $ref: '#/components/schemas/ParentAttributes'
+    ParentResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: parents
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/ParentAttributes'
+    ParentAttributes:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maxLength: 255
+          example: TestFirstGAPI
+        lastName:
+          type: string
+          maxLength: 255
+          example: TestLastGAPI
+        address1:
+          type: string
+          maxLength: 255
+        address2:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 255
+        region:
+          type: string
+          maxLength: 255
+        zip:
+          type: string
+          maxLength: 20
+        contact:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+            homePhone:
+              type: string
+            cellPhone:
+              type: string
+    ParentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParentResponse'
+  responses:
+    Unauthorized:
+      description: Missing or invalid X-Api-Key or subdomain header.
+    ValidationError:
+      description: The request payload failed validation.
+    NotFound:
+      description: The requested resource was not found.
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

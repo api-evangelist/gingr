@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Payments API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Payments
+  description: Charging and refunding cards on file, invoices, and deposits.
+paths:
+  /v1/payments/charge:
+    post:
+      operationId: v1PaymentsCharge
+      tags:
+      - Payments
+      summary: Payment - Charge
+      description: Charges an owner's card on file for an arbitrary amount, outside of a specific invoice.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        parentId:
+                          type: integer
+                        amount:
+                          type: number
+                          format: float
+      responses:
+        '200':
+          description: Charge confirmation.
+  /v1/payments/invoices/{invoiceId}:
+    post:
+      operationId: v1PaymentsPayInvoice
+      tags:
+      - Payments
+      summary: Payments - Pay Invoice
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: invoiceId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Payment confirmation for the invoice.
+  /v1/payments/invoices/{invoiceId}/refund:
+    post:
+      operationId: v1PaymentsRefundInvoice
+      tags:
+      - Payments
+      summary: Payments - Refund Invoices
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: invoiceId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Refund confirmation for the invoice.
+  /v1/payments/deposits/{depositId}:
+    post:
+      operationId: v1PaymentsPayDeposit
+      tags:
+      - Payments
+      summary: Payments - Pay Deposit
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: depositId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Payment confirmation for the deposit.
+components:
+  parameters:
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

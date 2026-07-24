@@ -1,0 +1,210 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Invoices
+  description: Invoices and charges.
+paths:
+  /v1/invoices:
+    get:
+      operationId: v1InvoicesList
+      tags:
+      - Invoices
+      summary: Invoices - List
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: filter[parentId]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: A page of invoice resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+  /v1/invoices/{invoiceId}:
+    get:
+      operationId: v1InvoiceDetails
+      tags:
+      - Invoices
+      summary: Invoice - Details
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: invoiceId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The requested invoice resource with line items.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/InvoiceResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/invoices/charges:
+    get:
+      operationId: v1InvoicesCharges
+      tags:
+      - Invoices
+      summary: Invoices - Charges
+      description: Lists individual charge line items across invoices.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of charge line items.
+  /v1/invoices/{invoiceId}/refund-items:
+    post:
+      operationId: v1InvoicesRefundItems
+      tags:
+      - Invoices
+      summary: Invoices - Refund Items
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: invoiceId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        itemIds:
+                          type: array
+                          items:
+                            type: integer
+                        refundReasonId:
+                          type: integer
+      responses:
+        '200':
+          description: Refund confirmation for the specified invoice line items.
+components:
+  schemas:
+    InvoiceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceResponse'
+    InvoiceResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: invoices
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/InvoiceAttributes'
+    InvoiceAttributes:
+      type: object
+      properties:
+        parentId:
+          type: integer
+        bookingId:
+          type: integer
+        total:
+          type: number
+          format: float
+        balance:
+          type: number
+          format: float
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        lineItems:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              description:
+                type: string
+              amount:
+                type: number
+                format: float
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

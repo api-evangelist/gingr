@@ -1,0 +1,191 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Services API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Services
+  description: Service catalog and facility configuration.
+paths:
+  /v1/config/service-types:
+    get:
+      operationId: v1ConfigServiceTypes
+      tags:
+      - Services
+      summary: Service Types - List
+      description: Lists the facility's configured service types (e.g. daycare, boarding, grooming, training add-ons).
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: A page of service type resources.
+  /v1/config/service-types/{serviceTypeId}:
+    get:
+      operationId: v1ConfigServiceTypeDetails
+      tags:
+      - Services
+      summary: Retrieve detailed information for a specific service type
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: serviceTypeId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The requested service type resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/config/booking-types:
+    get:
+      operationId: v1ConfigBookingTypes
+      tags:
+      - Services
+      summary: Retrieve a paginated list of booking types
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: filter[bookingCategoryId]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: filter[locationIds]
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: filter[appointmentBased]
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: A page of booking type resources.
+  /v1/config/lodgings:
+    get:
+      operationId: v1ConfigLodgings
+      tags:
+      - Services
+      summary: Lodgings - List
+      description: Lists the facility's configured lodgings (kennels/runs/suites).
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of lodging resources.
+  /v1/config/locations:
+    get:
+      operationId: v1ConfigLocations
+      tags:
+      - Services
+      summary: Location - List
+      description: Lists the facility's locations, for multi-location Gingr accounts.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: filter[active]
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: filter[locationName]
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: A list of location resources.
+  /v1/config/locations/{locationId}:
+    get:
+      operationId: v1ConfigLocationDetails
+      tags:
+      - Services
+      summary: Location - Detail
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: locationId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The requested location resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+  parameters:
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

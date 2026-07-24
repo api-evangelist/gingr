@@ -1,0 +1,409 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Reservations API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Reservations
+  description: Bookings/reservations for daycare, boarding, training, and grooming.
+paths:
+  /v1/bookings:
+    get:
+      operationId: v1BookingsList
+      tags:
+      - Reservations
+      summary: Bookings - List
+      description: Lists bookings/reservations, filterable by created date range, booking start/end date range, status (completed, cancelled, checked_in, confirmed, pending_acceptance, wait_listed, unconfirmed), owner, pet, location, or booking category.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: filter[status][type]
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - completed
+          - cancelled
+          - checked_in
+          - confirmed
+          - pending_acceptance
+          - wait_listed
+          - unconfirmed
+      - name: filter[status][from]
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: filter[status][to]
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: filter[parentId]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: filter[petIds]
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: filter[locationIds]
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: A page of booking resources.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingListResponse'
+    post:
+      operationId: v1BookingsCreate
+      tags:
+      - Reservations
+      summary: Bookings - Create
+      description: Creates a new booking/reservation for a pet.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateRequest'
+      responses:
+        '200':
+          description: The created booking resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/bookings/{bookingId}:
+    parameters:
+    - $ref: '#/components/parameters/Subdomain'
+    - $ref: '#/components/parameters/Accept'
+    - name: bookingId
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      operationId: v1BookingsDetails
+      tags:
+      - Reservations
+      summary: Bookings - Details
+      responses:
+        '200':
+          description: The requested booking resource.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: v1BookingsUpdate
+      tags:
+      - Reservations
+      summary: Bookings - Update
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateRequest'
+      responses:
+        '200':
+          description: The updated booking resource.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/bookings/{bookingId}/cancel:
+    put:
+      operationId: v1BookingsCancel
+      tags:
+      - Reservations
+      summary: Bookings - Cancel
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        cancellationReasonId:
+                          type: integer
+      responses:
+        '200':
+          description: The cancelled booking resource.
+  /v1/bookings/{bookingId}/check-in:
+    post:
+      operationId: v1BookingCheckIn
+      tags:
+      - Reservations
+      summary: Check In Booking
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The checked-in booking resource.
+  /v1/bookings/{bookingId}/checkout:
+    post:
+      operationId: v1BookingsCheckout
+      tags:
+      - Reservations
+      summary: Bookings - Checkout
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: The checked-out booking resource, typically generating an invoice.
+  /v1/bookings/{bookingId}/estimate:
+    get:
+      operationId: v1BookingEstimate
+      tags:
+      - Reservations
+      summary: Booking - Estimate
+      description: Returns an estimated price for a booking based on its configured services and dates.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Estimated pricing breakdown for the booking.
+  /v1/bookings/{bookingId}/services:
+    put:
+      operationId: v1BookingAddService
+      tags:
+      - Reservations
+      summary: Add Service to Booking
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        serviceTypeId:
+                          type: integer
+      responses:
+        '200':
+          description: The updated booking resource with the added service.
+  /v1/bookings/available-lodgings:
+    get:
+      operationId: v1BookingsAvailableLodgings
+      tags:
+      - Reservations
+      summary: Bookings Available Lodgings
+      description: Returns the lodgings (kennels/runs/suites) available for a given date range and booking type.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: filter[bookingStart]
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: filter[bookingEnd]
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: A list of available lodgings.
+components:
+  schemas:
+    BookingCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: bookings
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
+    BookingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookingResponse'
+    BookingResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: bookings
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
+    BookingAttributes:
+      type: object
+      properties:
+        parentId:
+          type: integer
+          example: 1707
+        petIds:
+          type: array
+          items:
+            type: integer
+          example:
+          - 2661
+        bookingTypeId:
+          type: integer
+        locationId:
+          type: integer
+        bookingStart:
+          type: string
+          format: date-time
+          example: '2024-03-01T10:30:00Z'
+        bookingEnd:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - completed
+          - cancelled
+          - checked_in
+          - confirmed
+          - pending_acceptance
+          - wait_listed
+          - unconfirmed
+        waitListDate:
+          type: string
+          format: date-time
+          nullable: true
+        waitListAcceptedDate:
+          type: string
+          format: date-time
+          nullable: true
+  responses:
+    ValidationError:
+      description: The request payload failed validation.
+    NotFound:
+      description: The requested resource was not found.
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'

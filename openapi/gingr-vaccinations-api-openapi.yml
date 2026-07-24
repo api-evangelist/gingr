@@ -1,0 +1,173 @@
+openapi: 3.0.3
+info:
+  title: Gingr Partner Invoices Vaccinations API
+  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  version: 1.8.0
+  contact:
+    name: Gingr
+    url: https://www.gingrapp.com
+servers:
+- url: https://api.gingr.io
+  description: Gingr Partner API (production)
+security:
+- ApiKeyAuth: []
+tags:
+- name: Vaccinations
+  description: Pet immunization/vaccination records.
+paths:
+  /v1/pets/{petId}/immunizations:
+    get:
+      operationId: v1PetsImmunizationsList
+      tags:
+      - Vaccinations
+      summary: Pets Immunizations - List
+      description: Lists a pet's immunization/vaccination records against the facility's configured immunization types.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: filter[isExpired]
+        in: query
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: A list of the pet's immunization records.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/ImmunizationListResponse'
+  /v1/pets/{petId}/immunizations/{immunizationTypeId}:
+    put:
+      operationId: v1PetsImmunizationsUpdate
+      tags:
+      - Vaccinations
+      summary: Pets Immunizations - Update
+      description: Records or updates a pet's immunization/vaccination date and expiration for a given immunization type.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      - $ref: '#/components/parameters/ContentType'
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: immunizationTypeId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    attributes:
+                      type: object
+                      properties:
+                        administeredDate:
+                          type: string
+                          format: date
+                        expirationDate:
+                          type: string
+                          format: date
+      responses:
+        '200':
+          description: The updated immunization record.
+  /v1/pets/immunization/expired:
+    get:
+      operationId: v1PetsImmunizationExpired
+      tags:
+      - Vaccinations
+      summary: Retrieve expired pet immunizations
+      description: Facility-wide list of expired pet immunizations, for compliance follow-up before check-in.
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of expired immunization records across pets.
+  /v1/config/immunization-types:
+    get:
+      operationId: v1ConfigImmunizationTypes
+      tags:
+      - Vaccinations
+      summary: Immunization Types - List
+      description: Lists the immunization/vaccination types the facility requires or tracks (e.g. Rabies, Bordetella, DHPP).
+      parameters:
+      - $ref: '#/components/parameters/Subdomain'
+      - $ref: '#/components/parameters/Accept'
+      responses:
+        '200':
+          description: A list of configured immunization types.
+components:
+  schemas:
+    ImmunizationAttributes:
+      type: object
+      properties:
+        immunizationTypeId:
+          type: integer
+        name:
+          type: string
+        administeredDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        isExpired:
+          type: boolean
+    ImmunizationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                example: immunizations
+              id:
+                type: integer
+              attributes:
+                $ref: '#/components/schemas/ImmunizationAttributes'
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'
