@@ -1,0 +1,30 @@
+{
+  "provider": "gingr",
+  "sources": [
+    "gingr-invoices-api-openapi.yml",
+    "gingr-owners-api-openapi.yml",
+    "gingr-payments-api-openapi.yml",
+    "gingr-pets-api-openapi.yml",
+    "gingr-report-cards-api-openapi.yml",
+    "gingr-reservations-api-openapi.yml",
+    "gingr-services-api-openapi.yml",
+    "gingr-vaccinations-api-openapi.yml",
+    "gingr-waitlist-api-openapi.yml"
+  ],
+  "outputs": [
+    "gingr-invoices-api-openapi.yml",
+    "gingr-owners-api-openapi.yml",
+    "gingr-payments-api-openapi.yml",
+    "gingr-pets-api-openapi.yml",
+    "gingr-report-cards-api-openapi.yml",
+    "gingr-reservations-api-openapi.yml",
+    "gingr-services-api-openapi.yml",
+    "gingr-vaccinations-api-openapi.yml",
+    "gingr-waitlist-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
