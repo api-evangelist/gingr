@@ -1,0 +1,142 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Gingr Partner Invoices Vaccinations API",
+    "version": "1.8.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-Api-Key",
+      "value": "{{X-Api-Key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Vaccinations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Pets Immunizations - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/:petId/immunizations",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "filter[isExpired]",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Lists a pet's immunization/vaccination records against the facility's configured immunization types."
+        },
+        {
+          "info": {
+            "name": "Pets Immunizations - Update",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.gingr.io/v1/pets/:petId/immunizations/:immunizationTypeId",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              },
+              {
+                "name": "Content-Type",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "immunizationTypeId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Records or updates a pet's immunization/vaccination date and expiration for a given immunization type."
+        },
+        {
+          "info": {
+            "name": "Retrieve expired pet immunizations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/immunization/expired",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Facility-wide list of expired pet immunizations, for compliance follow-up before check-in."
+        },
+        {
+          "info": {
+            "name": "Immunization Types - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/immunization-types",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Lists the immunization/vaccination types the facility requires or tracks (e.g. Rabies, Bordetella, DHPP)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

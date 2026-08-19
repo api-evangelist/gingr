@@ -1,0 +1,517 @@
+{
+  "item": [
+    {
+      "id": "584bee33-3ffa-4ed9-b256-930e759ecbab",
+      "name": "Vaccinations",
+      "description": {
+        "content": "Pet immunization/vaccination records.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "dc4bf000-41a2-4247-9315-949a861c3c4f",
+          "name": "Pets Immunizations - List",
+          "request": {
+            "name": "Pets Immunizations - List",
+            "description": {
+              "content": "Lists a pet's immunization/vaccination records against the facility's configured immunization types.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "pets",
+                ":petId",
+                "immunizations"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "filter[isExpired]",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "petId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "5ada74d2-e1dc-4fd9-85aa-dc5e0d7fe1d9",
+              "name": "A list of the pet's immunization records.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId",
+                    "immunizations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "filter[isExpired]",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.api+json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"immunizations\",\n      \"id\": 6417,\n      \"attributes\": {\n        \"immunizationTypeId\": 5711,\n        \"name\": \"string\",\n        \"administeredDate\": \"1953-11-24\",\n        \"expirationDate\": \"1963-04-07\",\n        \"isExpired\": false\n      }\n    },\n    {\n      \"type\": \"immunizations\",\n      \"id\": 6614,\n      \"attributes\": {\n        \"immunizationTypeId\": 180,\n        \"name\": \"string\",\n        \"administeredDate\": \"1961-05-04\",\n        \"expirationDate\": \"1978-03-17\",\n        \"isExpired\": true\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ff9b8d9b-9947-4b52-baff-8ce5151c2f5b",
+          "name": "Pets Immunizations - Update",
+          "request": {
+            "name": "Pets Immunizations - Update",
+            "description": {
+              "content": "Records or updates a pet's immunization/vaccination date and expiration for a given immunization type.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "pets",
+                ":petId",
+                "immunizations",
+                ":immunizationTypeId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "petId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "immunizationTypeId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"administeredDate\": \"<date>\",\n      \"expirationDate\": \"<date>\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a1e8cc05-77ea-4935-a77a-6ede27efcfd0",
+              "name": "The updated immunization record.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId",
+                    "immunizations",
+                    ":immunizationTypeId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "immunizationTypeId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Content-Type",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": {\n    \"attributes\": {\n      \"administeredDate\": \"<date>\",\n      \"expirationDate\": \"<date>\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "fc9e3238-f5aa-44bb-82a8-a4382f1c7ac7",
+          "name": "Retrieve expired pet immunizations",
+          "request": {
+            "name": "Retrieve expired pet immunizations",
+            "description": {
+              "content": "Facility-wide list of expired pet immunizations, for compliance follow-up before check-in.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "pets",
+                "immunization",
+                "expired"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "726973af-3e74-4f8c-ac7c-fda15510cca2",
+              "name": "A list of expired immunization records across pets.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    "immunization",
+                    "expired"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "96e7c997-fe8d-4b0f-8b4e-6b78b3ade936",
+          "name": "Immunization Types - List",
+          "request": {
+            "name": "Immunization Types - List",
+            "description": {
+              "content": "Lists the immunization/vaccination types the facility requires or tracks (e.g. Rabies, Bordetella, DHPP).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "config",
+                "immunization-types"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "756d6a8b-206d-4be4-9e25-8a76aa6b1eb6",
+              "name": "A list of configured immunization types.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "config",
+                    "immunization-types"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.gingr.io",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Api-Key"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "header"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "33fb2eb6-38e9-46fe-9453-ff5dde22a242",
+    "name": "Gingr Partner Invoices Vaccinations API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility's Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr's official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.\n\nContact Support:\n Name: Gingr",
+      "type": "text/plain"
+    }
+  }
+}

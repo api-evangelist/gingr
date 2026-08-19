@@ -1,0 +1,90 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Gingr Partner Invoices Waitlist API",
+    "version": "1.8.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-Api-Key",
+      "value": "{{X-Api-Key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Waitlist",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Move Booking to Wait List",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/wait-list",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              },
+              {
+                "name": "Content-Type",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Moves a booking to wait_listed status, typically because the requested location or lodging is at capacity."
+        },
+        {
+          "info": {
+            "name": "Bookings - Accept",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/bookings/:bookingId/accept",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              },
+              {
+                "name": "Content-Type",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "bookingId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Accepts a wait-listed or pending booking off the waitlist/queue and confirms it, recording a waitListAcceptedDate when applicable."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

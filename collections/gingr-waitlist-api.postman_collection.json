@@ -1,0 +1,289 @@
+{
+  "item": [
+    {
+      "id": "c28c5cde-0fe6-4c43-8f28-0ebc86a568a1",
+      "name": "Waitlist",
+      "description": {
+        "content": "Managing bookings that are on the facility waitlist.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5259ecce-cfbd-4db1-a10a-c2834a9a6a1a",
+          "name": "Move Booking to Wait List",
+          "request": {
+            "name": "Move Booking to Wait List",
+            "description": {
+              "content": "Moves a booking to wait_listed status, typically because the requested location or lodging is at capacity.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "wait-list"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "bookingId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "355c6808-3c79-4b47-87de-c07b864bc7d1",
+              "name": "The booking resource with status set to wait_listed and a waitListDate recorded.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "bookings",
+                    ":bookingId",
+                    "wait-list"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "bookingId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Content-Type",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.api+json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"type\": \"bookings\",\n    \"id\": 9081,\n    \"attributes\": {\n      \"parentId\": 1707,\n      \"petIds\": [\n        2661\n      ],\n      \"bookingTypeId\": 4623,\n      \"locationId\": 7103,\n      \"bookingStart\": \"2024-03-01T10:30:00Z\",\n      \"bookingEnd\": \"1948-01-07T08:03:07.117Z\",\n      \"status\": \"completed\",\n      \"waitListDate\": \"2008-01-14T23:00:45.924Z\",\n      \"waitListAcceptedDate\": \"1964-04-06T04:47:25.640Z\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9a4962b4-4bc1-491d-98fc-00283f6add92",
+          "name": "Bookings - Accept",
+          "request": {
+            "name": "Bookings - Accept",
+            "description": {
+              "content": "Accepts a wait-listed or pending booking off the waitlist/queue and confirms it, recording a waitListAcceptedDate when applicable.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "bookings",
+                ":bookingId",
+                "accept"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "bookingId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "6655502a-f7ad-4ce1-a959-cad52fdebb52",
+              "name": "The accepted/confirmed booking resource.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "bookings",
+                    ":bookingId",
+                    "accept"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "bookingId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Content-Type",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.gingr.io",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Api-Key"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "header"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "6e8789b6-810d-4839-b0cf-7769bc565df6",
+    "name": "Gingr Partner Invoices Waitlist API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility's Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr's official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.\n\nContact Support:\n Name: Gingr",
+      "type": "text/plain"
+    }
+  }
+}

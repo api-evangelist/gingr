@@ -1,0 +1,149 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Gingr Partner Invoices API",
+    "version": "1.8.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-Api-Key",
+      "value": "{{X-Api-Key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Invoices",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Invoices - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/invoices",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "filter[parentId]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page[size]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page[number]",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Invoices - List"
+        },
+        {
+          "info": {
+            "name": "Invoice - Details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/invoices/:invoiceId",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "invoiceId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Invoice - Details"
+        },
+        {
+          "info": {
+            "name": "Invoices - Charges",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/invoices/charges",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Lists individual charge line items across invoices."
+        },
+        {
+          "info": {
+            "name": "Invoices - Refund Items",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.gingr.io/v1/invoices/:invoiceId/refund-items",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              },
+              {
+                "name": "Content-Type",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "invoiceId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Invoices - Refund Items"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

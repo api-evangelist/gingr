@@ -1,0 +1,144 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Gingr Partner Invoices Report Cards API",
+    "version": "1.8.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-Api-Key",
+      "value": "{{X-Api-Key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Report Cards",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Pets Report Cards - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/:petId/report-cards",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "filter[locationId]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page[size]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page[number]",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Lists the daily activity report cards generated for a pet, scoped to a location."
+        },
+        {
+          "info": {
+            "name": "Report Cards - Details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/:petId/report-cards/:reportCardId",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "petId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "reportCardId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Report Cards - Details"
+        },
+        {
+          "info": {
+            "name": "Report Card Media - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/pets/report-card-media",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Lists photo/video media attached to report cards."
+        },
+        {
+          "info": {
+            "name": "Get Report Card Form Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/report-card-form",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Returns the facility's configured report card form fields (activities, ratings, notes sections)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

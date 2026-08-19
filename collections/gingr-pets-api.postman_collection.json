@@ -1,0 +1,1021 @@
+{
+  "item": [
+    {
+      "id": "79484e94-38c9-45ba-bd2c-56e409db0b80",
+      "name": "Pets",
+      "description": {
+        "content": "Pet profiles belonging to an owner.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "11da88e8-a229-492f-99e5-0ee71911cd97",
+          "name": "Pets - List",
+          "request": {
+            "name": "Pets - List",
+            "description": {
+              "content": "Lists pet profiles, filterable by name, owner, species, or breed.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "pets"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "filter[parentId]",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "page[size]",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "page[number]",
+                  "value": "<integer>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "331a0dfc-ea34-4f78-85e6-349a6d812d6b",
+              "name": "A page of pet resources.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "filter[parentId]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "page[size]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "page[number]",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.api+json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"data\": {\n        \"type\": \"pets\",\n        \"id\": 2631,\n        \"attributes\": {\n          \"name\": \"Abby\",\n          \"sex\": \"Female\",\n          \"weight\": 8739,\n          \"birthday\": \"2005-04-19\",\n          \"parentId\": 586,\n          \"breed\": {\n            \"id\": 3639,\n            \"name\": \"string\",\n            \"color\": \"string\"\n          },\n          \"feeding\": {\n            \"notes\": \"string\",\n            \"method\": \"string\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    },\n    {\n      \"data\": {\n        \"type\": \"pets\",\n        \"id\": 7629,\n        \"attributes\": {\n          \"name\": \"Abby\",\n          \"sex\": \"Female\",\n          \"weight\": 6774,\n          \"birthday\": \"1981-09-17\",\n          \"parentId\": 6845,\n          \"breed\": {\n            \"id\": 594,\n            \"name\": \"string\",\n            \"color\": \"string\"\n          },\n          \"feeding\": {\n            \"notes\": \"string\",\n            \"method\": \"string\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "62bee95f-2a57-46d0-8948-961cd8493e6a",
+          "name": "Pets - Create",
+          "request": {
+            "name": "Pets - Create",
+            "description": {
+              "content": "Creates a new pet profile belonging to an owner.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "pets"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"<string>\",\n    \"attributes\": {\n      \"name\": \"<string>\",\n      \"sex\": \"<string>\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "eb1cdcd6-c154-470c-a09c-f540a8bc8f14",
+              "name": "The created pet resource.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Content-Type",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"attributes\": {\n      \"name\": \"Abby\",\n      \"sex\": \"Female\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.api+json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"id\": 2769,\n    \"attributes\": {\n      \"name\": \"Abby\",\n      \"sex\": \"Female\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "19a202f3-bba9-4346-abdf-4d3b2c3328c6",
+              "name": "The request payload failed validation.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Content-Type",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"attributes\": {\n      \"name\": \"Abby\",\n      \"sex\": \"Female\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ceb89bfe-5dbd-4c97-bb0a-a41ae19b39de",
+          "name": "Pets - Details",
+          "request": {
+            "name": "Pets - Details",
+            "description": {
+              "content": "Retrieves a single pet profile by ID, including breed, feeding, and medication data.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "pets",
+                ":petId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "petId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b0712cbd-00c6-4520-8dc3-0d72978689b4",
+              "name": "The requested pet resource.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.api+json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"id\": 2769,\n    \"attributes\": {\n      \"name\": \"Abby\",\n      \"sex\": \"Female\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "92fcae6b-f4e4-4767-9b70-3a6ffa764bf2",
+              "name": "The requested resource was not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "12bc410b-a98b-4550-b8bf-535c485b9d1c",
+          "name": "Pets - Update",
+          "request": {
+            "name": "Pets - Update",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "pets",
+                ":petId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "petId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"type\": \"<string>\",\n    \"attributes\": {\n      \"name\": \"<string>\",\n      \"sex\": \"<string>\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "064fd4cc-3bac-4517-bf3b-4001d0b2a9f2",
+              "name": "The updated pet resource.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"attributes\": {\n      \"name\": \"Abby\",\n      \"sex\": \"Female\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "c352900d-f888-410c-aad5-b7d3f8208a31",
+              "name": "The requested resource was not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": {\n    \"type\": \"pets\",\n    \"attributes\": {\n      \"name\": \"Abby\",\n      \"sex\": \"Female\",\n      \"weight\": \"<integer>\",\n      \"birthday\": \"<date>\",\n      \"parentId\": \"<integer>\",\n      \"breed\": {\n        \"id\": \"<integer>\",\n        \"name\": \"<string>\",\n        \"color\": \"<string>\"\n      },\n      \"feeding\": {\n        \"notes\": \"<string>\",\n        \"method\": \"<string>\",\n        \"type\": \"<string>\"\n      }\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5ff52537-8b95-4551-9563-ddad4707be52",
+          "name": "Delete Pet",
+          "request": {
+            "name": "Delete Pet",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "pets",
+                ":petId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "petId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "13660b97-8e4f-4f30-bf3b-935350a54dca",
+              "name": "Deletion confirmation.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "320d7c23-f880-4a82-9225-fc2245c14962",
+              "name": "The requested resource was not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    ":petId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "petId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "26548573-a751-4f51-a6f9-fbc2297304dd",
+          "name": "Pets - Merge",
+          "request": {
+            "name": "Pets - Merge",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "pets",
+                "merge"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "(Required) The facility's Gingr account subdomain identifier.",
+                "key": "subdomain",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "<object>",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "8bcd7ace-ebed-47a6-87e9-4565d66e30b6",
+              "name": "Merge confirmation.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "pets",
+                    "merge"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) The facility's Gingr account subdomain identifier.",
+                    "key": "subdomain",
+                    "value": "donny"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Accept",
+                    "value": "application/vnd.api+json"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "(Required) ",
+                    "key": "Content-Type",
+                    "value": "application/vnd.api+json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "<object>",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.gingr.io",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Api-Key"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "header"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "8caf0cd6-5a8d-4e05-ae96-2dd9ec28cdb8",
+    "name": "Gingr Partner Invoices Pets API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility's Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr's official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.\n\nContact Support:\n Name: Gingr",
+      "type": "text/plain"
+    }
+  }
+}

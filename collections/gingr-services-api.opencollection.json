@@ -1,0 +1,217 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Gingr Partner Invoices Services API",
+    "version": "1.8.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-Api-Key",
+      "value": "{{X-Api-Key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Services",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Service Types - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/service-types",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "page[size]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page[number]",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Lists the facility's configured service types (e.g. daycare, boarding, grooming, training add-ons)."
+        },
+        {
+          "info": {
+            "name": "Retrieve detailed information for a specific service type",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/service-types/:serviceTypeId",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "serviceTypeId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve detailed information for a specific service type"
+        },
+        {
+          "info": {
+            "name": "Retrieve a paginated list of booking types",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/booking-types",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "filter[bookingCategoryId]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter[locationIds]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter[appointmentBased]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page[size]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page[number]",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Retrieve a paginated list of booking types"
+        },
+        {
+          "info": {
+            "name": "Lodgings - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/lodgings",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Lists the facility's configured lodgings (kennels/runs/suites)."
+        },
+        {
+          "info": {
+            "name": "Location - List",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/locations",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "filter[active]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter[locationName]",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Lists the facility's locations, for multi-location Gingr accounts."
+        },
+        {
+          "info": {
+            "name": "Location - Detail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.gingr.io/v1/config/locations/:locationId",
+            "headers": [
+              {
+                "name": "subdomain",
+                "value": ""
+              },
+              {
+                "name": "Accept",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "locationId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Location - Detail"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
