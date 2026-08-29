@@ -10,6 +10,18 @@ description: Gingr is pet-care business management software for dog daycare, boa
   docs.gingr.io) covering owners (parents), pets, bookings/reservations, invoices
   and payments, immunizations, and report cards, alongside an older subdomain-scoped
   legacy reporting API used for read-only pulls of owners and reservations.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: paid
   onboarding: self-serve
