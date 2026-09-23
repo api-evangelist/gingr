@@ -1,7 +1,7 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: Gingr Partner Invoices Vaccinations API
-  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  title: Gingr Partner Vaccinations API
+  description: Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming).
   version: 1.8.0
   contact:
     name: Gingr
@@ -111,45 +111,7 @@ paths:
         '200':
           description: A list of configured immunization types.
 components:
-  schemas:
-    ImmunizationAttributes:
-      type: object
-      properties:
-        immunizationTypeId:
-          type: integer
-        name:
-          type: string
-        administeredDate:
-          type: string
-          format: date
-        expirationDate:
-          type: string
-          format: date
-        isExpired:
-          type: boolean
-    ImmunizationListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                example: immunizations
-              id:
-                type: integer
-              attributes:
-                $ref: '#/components/schemas/ImmunizationAttributes'
   parameters:
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
     Subdomain:
       name: subdomain
       in: header
@@ -165,6 +127,44 @@ components:
       schema:
         type: string
         example: application/vnd.api+json
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  schemas:
+    ImmunizationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                example: immunizations
+              id:
+                type: integer
+              attributes:
+                $ref: '#/components/schemas/ImmunizationAttributes'
+    ImmunizationAttributes:
+      type: object
+      properties:
+        immunizationTypeId:
+          type: integer
+        name:
+          type: string
+        administeredDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        isExpired:
+          type: boolean
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

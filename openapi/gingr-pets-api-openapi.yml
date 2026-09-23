@@ -1,7 +1,7 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: Gingr Partner Invoices Pets API
-  description: 'Gingr''s Partner API for pet-care business management software (dog daycare, boarding, training, and grooming). The API is JSON:API-flavored - request and response bodies wrap resource attributes under a `data` object - and every request must send a `subdomain` header identifying the facility''s Gingr account plus an `Accept: application/vnd.api+json` header. Endpoints below are a curated subset (owners/parents, pets, bookings/reservations, services and configuration, invoices/payments, immunizations, report cards, and waitlist) drawn from Gingr''s official public OpenAPI document at https://docs.gingr.io/documentation/swagger.json (Gingr API v1.8.0), which documents 158 operations in total. This document is a representative subset, not a full mirror; consult the live swagger.json for every operation, filter, and field.'
+  title: Gingr Partner Pets API
+  description: Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming).
   version: 1.8.0
   contact:
     name: Gingr
@@ -149,30 +149,6 @@ paths:
           description: Merge confirmation.
 components:
   schemas:
-    PetCreateRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: pets
-            attributes:
-              $ref: '#/components/schemas/PetAttributes'
-    PetResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: pets
-            id:
-              type: integer
-            attributes:
-              $ref: '#/components/schemas/PetAttributes'
     PetAttributes:
       type: object
       properties:
@@ -207,6 +183,19 @@ components:
               type: string
             type:
               type: string
+    PetResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: pets
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
     PetListResponse:
       type: object
       properties:
@@ -214,19 +203,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PetResponse'
-  responses:
-    ValidationError:
-      description: The request payload failed validation.
-    NotFound:
-      description: The requested resource was not found.
+    PetCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: pets
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
   parameters:
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
     Subdomain:
       name: subdomain
       in: header
@@ -242,6 +230,18 @@ components:
       schema:
         type: string
         example: application/vnd.api+json
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+    ValidationError:
+      description: The request payload failed validation.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

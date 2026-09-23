@@ -1,15 +1,7 @@
 {
   "provider": "gingr",
   "sources": [
-    "gingr-invoices-api-openapi.yml",
-    "gingr-owners-api-openapi.yml",
-    "gingr-payments-api-openapi.yml",
-    "gingr-pets-api-openapi.yml",
-    "gingr-report-cards-api-openapi.yml",
-    "gingr-reservations-api-openapi.yml",
-    "gingr-services-api-openapi.yml",
-    "gingr-vaccinations-api-openapi.yml",
-    "gingr-waitlist-api-openapi.yml"
+    "_original/gingr-openapi.yml"
   ],
   "outputs": [
     "gingr-invoices-api-openapi.yml",
@@ -25,6 +17,20 @@
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "gingr-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "gingr-invoices-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-owners-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-payments-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-pets-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-report-cards-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-reservations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-services-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-vaccinations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gingr-waitlist-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
