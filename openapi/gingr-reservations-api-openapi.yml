@@ -301,13 +301,6 @@ paths:
           description: A list of available lodgings.
 components:
   schemas:
-    BookingListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BookingResponse'
     BookingResponse:
       type: object
       properties:
@@ -375,15 +368,19 @@ components:
               example: bookings
             attributes:
               $ref: '#/components/schemas/BookingAttributes'
+    BookingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookingResponse'
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+    ValidationError:
+      description: The request payload failed validation.
   parameters:
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
     ContentType:
       name: Content-Type
       in: header
@@ -398,11 +395,14 @@ components:
       schema:
         type: string
         example: application/vnd.api+json
-  responses:
-    NotFound:
-      description: The requested resource was not found.
-    ValidationError:
-      description: The request payload failed validation.
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -111,45 +111,7 @@ paths:
         '200':
           description: A list of configured immunization types.
 components:
-  parameters:
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
   schemas:
-    ImmunizationListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                example: immunizations
-              id:
-                type: integer
-              attributes:
-                $ref: '#/components/schemas/ImmunizationAttributes'
     ImmunizationAttributes:
       type: object
       properties:
@@ -165,6 +127,44 @@ components:
           format: date
         isExpired:
           type: boolean
+    ImmunizationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                example: immunizations
+              id:
+                type: integer
+              attributes:
+                $ref: '#/components/schemas/ImmunizationAttributes'
+  parameters:
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

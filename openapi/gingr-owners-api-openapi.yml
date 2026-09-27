@@ -228,37 +228,21 @@ paths:
           description: Merge confirmation.
 components:
   responses:
-    Unauthorized:
-      description: Missing or invalid X-Api-Key or subdomain header.
     NotFound:
       description: The requested resource was not found.
+    Unauthorized:
+      description: Missing or invalid X-Api-Key or subdomain header.
     ValidationError:
       description: The request payload failed validation.
-  parameters:
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
   schemas:
-    ParentCreateRequest:
+    ParentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParentResponse'
+    ParentResponse:
       type: object
       properties:
         data:
@@ -267,15 +251,10 @@ components:
             type:
               type: string
               example: parents
+            id:
+              type: integer
             attributes:
               $ref: '#/components/schemas/ParentAttributes'
-    ParentListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ParentResponse'
     ParentAttributes:
       type: object
       properties:
@@ -312,7 +291,7 @@ components:
               type: string
             cellPhone:
               type: string
-    ParentResponse:
+    ParentCreateRequest:
       type: object
       properties:
         data:
@@ -321,10 +300,31 @@ components:
             type:
               type: string
               example: parents
-            id:
-              type: integer
             attributes:
               $ref: '#/components/schemas/ParentAttributes'
+  parameters:
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

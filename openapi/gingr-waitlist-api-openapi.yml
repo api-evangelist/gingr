@@ -58,43 +58,7 @@ paths:
         '200':
           description: The accepted/confirmed booking resource.
 components:
-  parameters:
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
   schemas:
-    BookingResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: bookings
-            id:
-              type: integer
-            attributes:
-              $ref: '#/components/schemas/BookingAttributes'
     BookingAttributes:
       type: object
       properties:
@@ -138,6 +102,42 @@ components:
           - string
           - 'null'
           format: date-time
+    BookingResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: bookings
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
+  parameters:
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -148,6 +148,11 @@ paths:
         '200':
           description: Merge confirmation.
 components:
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+    ValidationError:
+      description: The request payload failed validation.
   schemas:
     PetAttributes:
       type: object
@@ -183,6 +188,17 @@ components:
               type: string
             type:
               type: string
+    PetCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: pets
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
     PetResponse:
       type: object
       properties:
@@ -203,26 +219,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PetResponse'
-    PetCreateRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: pets
-            attributes:
-              $ref: '#/components/schemas/PetAttributes'
   parameters:
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
     ContentType:
       name: Content-Type
       in: header
@@ -237,11 +234,14 @@ components:
       schema:
         type: string
         example: application/vnd.api+json
-  responses:
-    NotFound:
-      description: The requested resource was not found.
-    ValidationError:
-      description: The request payload failed validation.
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
