@@ -118,13 +118,6 @@ paths:
           description: Payment confirmation for the deposit.
 components:
   parameters:
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
     Accept:
       name: Accept
       in: header
@@ -140,6 +133,13 @@ components:
       schema:
         type: string
         example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

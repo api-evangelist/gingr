@@ -148,12 +148,18 @@ paths:
         '200':
           description: Merge confirmation.
 components:
-  responses:
-    NotFound:
-      description: The requested resource was not found.
-    ValidationError:
-      description: The request payload failed validation.
   schemas:
+    PetCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: pets
+            attributes:
+              $ref: '#/components/schemas/PetAttributes'
     PetAttributes:
       type: object
       properties:
@@ -188,17 +194,13 @@ components:
               type: string
             type:
               type: string
-    PetCreateRequest:
+    PetListResponse:
       type: object
       properties:
         data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: pets
-            attributes:
-              $ref: '#/components/schemas/PetAttributes'
+          type: array
+          items:
+            $ref: '#/components/schemas/PetResponse'
     PetResponse:
       type: object
       properties:
@@ -212,23 +214,16 @@ components:
               type: integer
             attributes:
               $ref: '#/components/schemas/PetAttributes'
-    PetListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/PetResponse'
   parameters:
-    ContentType:
-      name: Content-Type
+    Accept:
+      name: Accept
       in: header
       required: true
       schema:
         type: string
         example: application/vnd.api+json
-    Accept:
-      name: Accept
+    ContentType:
+      name: Content-Type
       in: header
       required: true
       schema:
@@ -242,6 +237,11 @@ components:
       schema:
         type: string
         example: donny
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+    ValidationError:
+      description: The request payload failed validation.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

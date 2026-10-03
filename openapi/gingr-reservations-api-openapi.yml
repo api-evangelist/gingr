@@ -314,6 +314,17 @@ components:
               type: integer
             attributes:
               $ref: '#/components/schemas/BookingAttributes'
+    BookingCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: bookings
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
     BookingAttributes:
       type: object
       properties:
@@ -357,17 +368,6 @@ components:
           - string
           - 'null'
           format: date-time
-    BookingCreateRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: bookings
-            attributes:
-              $ref: '#/components/schemas/BookingAttributes'
     BookingListResponse:
       type: object
       properties:
@@ -375,21 +375,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BookingResponse'
-  responses:
-    NotFound:
-      description: The requested resource was not found.
-    ValidationError:
-      description: The request payload failed validation.
   parameters:
-    ContentType:
-      name: Content-Type
+    Accept:
+      name: Accept
       in: header
       required: true
       schema:
         type: string
         example: application/vnd.api+json
-    Accept:
-      name: Accept
+    ContentType:
+      name: Content-Type
       in: header
       required: true
       schema:
@@ -403,6 +398,11 @@ components:
       schema:
         type: string
         example: donny
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+    ValidationError:
+      description: The request payload failed validation.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -59,6 +59,19 @@ paths:
           description: The accepted/confirmed booking resource.
 components:
   schemas:
+    BookingResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: bookings
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/BookingAttributes'
     BookingAttributes:
       type: object
       properties:
@@ -102,29 +115,16 @@ components:
           - string
           - 'null'
           format: date-time
-    BookingResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: bookings
-            id:
-              type: integer
-            attributes:
-              $ref: '#/components/schemas/BookingAttributes'
   parameters:
-    ContentType:
-      name: Content-Type
+    Accept:
+      name: Accept
       in: header
       required: true
       schema:
         type: string
         example: application/vnd.api+json
-    Accept:
-      name: Accept
+    ContentType:
+      name: Content-Type
       in: header
       required: true
       schema:

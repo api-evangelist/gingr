@@ -109,25 +109,26 @@ paths:
         '200':
           description: The report card form configuration.
 components:
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
   responses:
     NotFound:
       description: The requested resource was not found.
   schemas:
-    ReportCardListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                example: report-cards
-              id:
-                type: integer
-              attributes:
-                $ref: '#/components/schemas/ReportCardAttributes'
     ReportCardAttributes:
       type: object
       properties:
@@ -164,22 +165,21 @@ components:
                 enum:
                 - photo
                 - video
-  parameters:
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
+    ReportCardListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                example: report-cards
+              id:
+                type: integer
+              attributes:
+                $ref: '#/components/schemas/ReportCardAttributes'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
