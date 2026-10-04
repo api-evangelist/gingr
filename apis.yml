@@ -185,6 +185,9 @@ apis:
   - type: Documentation
     url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
 common:
+- type: CapabilityMap
+  url: capabilities/gingr-capability-edges.yml
+  name: Gingr Business Capability Map
 - type: AgenticAccess
   url: agentic-access/gingr-agentic-access.yml
 - type: DomainSecurity

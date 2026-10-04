@@ -1,0 +1,48 @@
+slug: gingr
+provider: Gingr
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 3
+edges:
+- tag: Invoices
+  spec_file: gingr-invoices-api-openapi.yml
+  capability_id: BC-200.30
+  capability_id_l1: BC-200
+  capability_name: Accounts Receivable Management
+  confidence: 0.8
+  evidence: GET /v1/invoices v1InvoicesList Invoices - List; POST /v1/invoices/{invoiceId}/refund-items
+    Invoices - Refund Items
+  reason: Customer invoices, charges and refunds for a pet-care business — customer invoicing and receivables,
+    i.e. Accounts Receivable Management. Not a subscription billing model, so the cross-industry AR capability
+    fits best.
+- tag: Owners
+  spec_file: gingr-owners-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.8
+  evidence: POST /v1/parents 'Parents - Create', 'Validate if an email address is already registered',
+    'Merge two parent accounts' with schemas ParentAttributes, ParentResponse
+  reason: '''Owners''/parents are the paying clients of the pet-care facility; the operations are classic
+    client master-record CRUD plus duplicate detection (email/phone validation) and record merge, which
+    is customer data management / golden-record stewardship rather than any pet-specific domain function.'
+- tag: Payments
+  spec_file: gingr-payments-api-openapi.yml
+  capability_id: BC-200.30
+  capability_id_l1: BC-200
+  capability_name: Accounts Receivable Management
+  confidence: 0.72
+  evidence: POST /v1/payments/invoices/{invoiceId} 'Payments - Pay Invoice', POST /v1/payments/invoices/{invoiceId}/refund
+    'Payments - Refund Invoices', POST /v1/payments/deposits/{depositId} 'Payments - Pay Deposit'
+  reason: Operations collect card charges against customer invoices and deposits and issue refunds — i.e.
+    receivables settlement and cash application for a one-off service business, not subscription billing
+    (no plans, metering or recurring tariffs appear).
