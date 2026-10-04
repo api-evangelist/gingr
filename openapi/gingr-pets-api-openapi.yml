@@ -148,8 +148,38 @@ paths:
         '200':
           description: Merge confirmation.
 components:
+  parameters:
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
   schemas:
-    PetCreateRequest:
+    PetListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PetResponse'
+    PetResponse:
       type: object
       properties:
         data:
@@ -158,6 +188,8 @@ components:
             type:
               type: string
               example: pets
+            id:
+              type: integer
             attributes:
               $ref: '#/components/schemas/PetAttributes'
     PetAttributes:
@@ -194,14 +226,7 @@ components:
               type: string
             type:
               type: string
-    PetListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/PetResponse'
-    PetResponse:
+    PetCreateRequest:
       type: object
       properties:
         data:
@@ -210,33 +235,8 @@ components:
             type:
               type: string
               example: pets
-            id:
-              type: integer
             attributes:
               $ref: '#/components/schemas/PetAttributes'
-  parameters:
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
   responses:
     NotFound:
       description: The requested resource was not found.

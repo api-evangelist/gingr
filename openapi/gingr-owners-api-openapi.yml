@@ -227,23 +227,9 @@ paths:
         '200':
           description: Merge confirmation.
 components:
-  responses:
-    Unauthorized:
-      description: Missing or invalid X-Api-Key or subdomain header.
-    NotFound:
-      description: The requested resource was not found.
-    ValidationError:
-      description: The request payload failed validation.
   parameters:
     Accept:
       name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    ContentType:
-      name: Content-Type
       in: header
       required: true
       schema:
@@ -257,6 +243,20 @@ components:
       schema:
         type: string
         example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+    Unauthorized:
+      description: Missing or invalid X-Api-Key or subdomain header.
+    ValidationError:
+      description: The request payload failed validation.
   schemas:
     ParentCreateRequest:
       type: object

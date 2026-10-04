@@ -119,13 +119,6 @@ components:
       schema:
         type: string
         example: application/vnd.api+json
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
     Subdomain:
       name: subdomain
       in: header
@@ -134,6 +127,13 @@ components:
       schema:
         type: string
         example: donny
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
   schemas:
     ImmunizationAttributes:
       type: object
