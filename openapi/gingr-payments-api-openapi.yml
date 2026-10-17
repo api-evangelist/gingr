@@ -118,6 +118,14 @@ paths:
           description: Payment confirmation for the deposit.
 components:
   parameters:
+    Subdomain:
+      name: subdomain
+      in: header
+      required: true
+      description: The facility's Gingr account subdomain identifier.
+      schema:
+        type: string
+        example: donny
     Accept:
       name: Accept
       in: header
@@ -132,14 +140,6 @@ components:
       schema:
         type: string
         example: application/vnd.api+json
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

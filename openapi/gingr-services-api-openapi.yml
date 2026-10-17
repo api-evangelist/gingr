@@ -165,13 +165,6 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   parameters:
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
     Subdomain:
       name: subdomain
       in: header
@@ -180,6 +173,13 @@ components:
       schema:
         type: string
         example: donny
+    Accept:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/vnd.api+json
   responses:
     NotFound:
       description: The requested resource was not found.

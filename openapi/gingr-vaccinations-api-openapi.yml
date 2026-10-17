@@ -135,21 +135,6 @@ components:
         type: string
         example: application/vnd.api+json
   schemas:
-    ImmunizationAttributes:
-      type: object
-      properties:
-        immunizationTypeId:
-          type: integer
-        name:
-          type: string
-        administeredDate:
-          type: string
-          format: date
-        expirationDate:
-          type: string
-          format: date
-        isExpired:
-          type: boolean
     ImmunizationListResponse:
       type: object
       properties:
@@ -165,6 +150,21 @@ components:
                 type: integer
               attributes:
                 $ref: '#/components/schemas/ImmunizationAttributes'
+    ImmunizationAttributes:
+      type: object
+      properties:
+        immunizationTypeId:
+          type: integer
+        name:
+          type: string
+        administeredDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        isExpired:
+          type: boolean
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

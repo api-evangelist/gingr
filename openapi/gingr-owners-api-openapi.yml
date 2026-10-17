@@ -250,45 +250,7 @@ components:
       schema:
         type: string
         example: application/vnd.api+json
-  responses:
-    NotFound:
-      description: The requested resource was not found.
-    Unauthorized:
-      description: Missing or invalid X-Api-Key or subdomain header.
-    ValidationError:
-      description: The request payload failed validation.
   schemas:
-    ParentCreateRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: parents
-            attributes:
-              $ref: '#/components/schemas/ParentAttributes'
-    ParentResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: parents
-            id:
-              type: integer
-            attributes:
-              $ref: '#/components/schemas/ParentAttributes'
-    ParentListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ParentResponse'
     ParentAttributes:
       type: object
       properties:
@@ -325,6 +287,44 @@ components:
               type: string
             cellPhone:
               type: string
+    ParentResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: parents
+            id:
+              type: integer
+            attributes:
+              $ref: '#/components/schemas/ParentAttributes'
+    ParentCreateRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: parents
+            attributes:
+              $ref: '#/components/schemas/ParentAttributes'
+    ParentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParentResponse'
+  responses:
+    ValidationError:
+      description: The request payload failed validation.
+    NotFound:
+      description: The requested resource was not found.
+    Unauthorized:
+      description: Missing or invalid X-Api-Key or subdomain header.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
