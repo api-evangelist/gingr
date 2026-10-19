@@ -1,148 +1,863 @@
 openapi: 3.2.0
 info:
-  title: Gingr Partner Payments API
-  description: Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming).
-  version: 1.8.0
-  contact:
-    name: Gingr
-    url: https://www.gingrapp.com
-servers:
-- url: https://api.gingr.io
-  description: Gingr Partner API (production)
-security:
-- ApiKeyAuth: []
+  title: Gingr Payments API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
 tags:
 - name: Payments
-  description: Charging and refunding cards on file, invoices, and deposits.
+  description: 'The **Payments** group covers payment processing, invoice management, and deposit handling for bookings and retail transactions.
+
+
+    Use this group to:
+
+
+    - **Retrieve invoices** for a parent or booking.
+
+    - **Process payments** against an open invoice using a saved card on file or a new payment token.
+
+    - **Manage deposits** — collect or refund deposit amounts tied to a booking.
+
+    - **Handle store credit** — apply store credit balances toward an invoice.
+
+    - **Manage Card Vault (CVF) settings** — configure how cards are captured and stored for a parent.
+
+
+    Important considerations:
+
+
+    - Payments are processed through the payment gateway configured for the organization. The API does not accept raw card numbers — always use a payment token or a saved `paymentMethodId`.
+
+    - Refunds require a `refundReasonId` from the Config refund reasons endpoint.
+
+    - Deposit rules (amount, timing, refundability) are controlled by organization settings and booking type configuration.'
 paths:
-  /v1/payments/charge:
-    post:
-      operationId: v1PaymentsCharge
+  /v1/payments/cvf-settings:
+    get:
       tags:
       - Payments
-      summary: Payment - Charge
-      description: Charges an owner's card on file for an arbitrary amount, outside of a specific invoice.
+      summary: CVF Settings - Details
+      description: Retrieve CVF (Convenience Fee) settings for a location
+      operationId: CvfSettings
       parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - $ref: '#/components/parameters/ContentType'
-      requestBody:
-        required: true
-        content:
-          application/vnd.api+json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    attributes:
-                      type: object
-                      properties:
-                        parentId:
-                          type: integer
-                        amount:
-                          type: number
-                          format: float
-      responses:
-        '200':
-          description: Charge confirmation.
-  /v1/payments/invoices/{invoiceId}:
-    post:
-      operationId: v1PaymentsPayInvoice
-      tags:
-      - Payments
-      summary: Payments - Pay Invoice
-      parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - $ref: '#/components/parameters/ContentType'
-      - name: invoiceId
-        in: path
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
         required: true
         schema:
-          type: integer
-      requestBody:
-        content:
-          application/vnd.api+json:
-            schema:
-              type: object
-      responses:
-        '200':
-          description: Payment confirmation for the invoice.
-  /v1/payments/invoices/{invoiceId}/refund:
-    post:
-      operationId: v1PaymentsRefundInvoice
-      tags:
-      - Payments
-      summary: Payments - Refund Invoices
-      parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - $ref: '#/components/parameters/ContentType'
-      - name: invoiceId
-        in: path
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
         required: true
         schema:
-          type: integer
-      requestBody:
-        content:
-          application/vnd.api+json:
-            schema:
-              type: object
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: true
+        schema:
+          required:
+          - locationId
+          properties:
+            locationId:
+              description: 'Location ID (should be valid ID, min: 1, max: 999999999999999999)'
+              type: integer
+              example: 1
+          type: object
       responses:
         '200':
-          description: Refund confirmation for the invoice.
+          description: Successful response with CVF settings data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: cvf-settings
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        example: 1
+                      attributes:
+                        properties:
+                          isCvfEnabled:
+                            description: Whether the Convenience Fee (CVF) is enabled for this location
+                            type: boolean
+                            example: false
+                          location:
+                            description: Location associated with this CVF setting
+                            properties:
+                              id:
+                                description: Unique identifier of the location
+                                type: integer
+                                example: 1
+                              name:
+                                description: Display name of the location including city
+                                type:
+                                - string
+                                - 'null'
+                                example: Happy Wags - Boulder
+                            type: object
+                        type: object
+                    type:
+                    - object
+                    - 'null'
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
   /v1/payments/deposits/{depositId}:
     post:
-      operationId: v1PaymentsPayDeposit
       tags:
       - Payments
       summary: Payments - Pay Deposit
+      description: Processes a payment against an outstanding deposit using the parent's card on file or a specified payment method. A successful call marks the deposit as paid and creates a payment allocation record. Returns an error if the deposit has already been paid or the payment method is invalid.
+      operationId: v1PaymentsPayDeposit
       parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - $ref: '#/components/parameters/ContentType'
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
       - name: depositId
         in: path
+        description: Deposit ID (valid Deposit ID)
         required: true
         schema:
           type: integer
+          example: 1813
       requestBody:
         content:
           application/vnd.api+json:
             schema:
+              required:
+              - data
+              properties:
+                data:
+                  required:
+                  - type
+                  - id
+                  - attributes
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: deposits
+                    id:
+                      description: Unique identifier of the deposit to pay
+                      type: integer
+                      example: 1813
+                    attributes:
+                      required:
+                      - paymentMethodId
+                      properties:
+                        paymentMethodId:
+                          description: Payment method ID (should be valid ID)
+                          type: integer
+                          example: 1
+                        description:
+                          description: Optional. Payment description (max 2048 characters)
+                          type:
+                          - string
+                          - 'null'
+                          example: Some info about deposit
+                        cardId:
+                          description: Optional. Card ID or payment method ID
+                          type: string
+                          example: pm_1234567890
+                        signature:
+                          description: Optional. Payment signature (max 255 characters)
+                          type:
+                          - string
+                          - 'null'
+                          example: base64signature
+                      type: object
+                  type: object
               type: object
       responses:
         '200':
-          description: Payment confirmation for the deposit.
+          description: Successful response with payment data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: payments
+                      id:
+                        description: Unique identifier of the created payment record
+                        type: integer
+                        example: 3690
+                      attributes:
+                        properties:
+                          timeStamp:
+                            description: Timestamp when the payment was processed (ISO 8601)
+                            type: string
+                            format: date-time
+                            example: '2025-08-26T19:52:08Z'
+                        type: object
+                    type: object
+                type: object
+        '400':
+          description: Payment processing failed
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: Deposit ID 123 not found
+        '403':
+          description: Not authorized - deposit not found
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/payments/deposits/{depositId}/refund:
+    post:
+      tags:
+      - Payments
+      summary: Deposits - Refund
+      description: Issues a refund for a previously paid deposit. The refund is applied back to the original payment method. A refund reason ID is required — use the Refund Reasons endpoint to retrieve valid options. Once refunded, the deposit is marked as voided and the payment allocation is reversed.
+      operationId: v1PaymentsDepositsRefund
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: depositId
+        in: path
+        description: Deposit ID (valid deposit ID)
+        required: true
+        schema:
+          type: integer
+          example: 552
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              properties:
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: deposits
+                    id:
+                      description: Unique identifier of the deposit to refund
+                      type: integer
+                      example: 552
+                    attributes:
+                      properties:
+                        description:
+                          description: Optional. Refund description (max 255 characters)
+                          type: string
+                          example: test dec
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: payments
+                      id:
+                        description: Unique identifier of the refund payment record
+                        type: integer
+                        format: int64
+                        example: '3718'
+                      attributes:
+                        properties:
+                          amount:
+                            description: Refund amount as a negative decimal string
+                            type: string
+                            example: '-339.00'
+                          timeStamp:
+                            description: Timestamp when the refund was processed (ISO 8601)
+                            type: string
+                            example: '2025-09-29T13:54:36Z'
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: This deposit cannot be refunded because it hasn't been paid
+      security:
+      - XApiKey: []
+  /v1/payments/invoices/{invoiceId}:
+    post:
+      tags:
+      - Payments
+      summary: Payments - Pay Invoice
+      description: Processes a payment against an existing invoice using the parent's card on file or a specified payment method. Supports partial payments and applies any available store credit or reward points if configured. Returns the updated invoice with the new payment reflected in the balance.
+      operationId: v1PaymentsPayInvoice
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: invoiceId
+        in: path
+        description: Invoice ID (valid Invoice ID)
+        required: true
+        schema:
+          type: integer
+          example: 12498
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - data
+              properties:
+                data:
+                  required:
+                  - type
+                  - attributes
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: payments
+                    attributes:
+                      required:
+                      - amount
+                      - paymentMethodId
+                      properties:
+                        amount:
+                          description: Payment amount (numeric, up to 2 decimals, greater than 0, max 99999999.99)
+                          type: number
+                          format: float
+                          example: 100.5
+                        paymentMethodId:
+                          description: Payment method ID (required). Determines the processor used for this payment — GET /v1/config/payment-methods returns a processor value for each method, and that value determines whether cardId is permitted.
+                          type: integer
+                          example: 1
+                        description:
+                          description: Optional. Payment description (max 255 characters)
+                          type:
+                          - string
+                          - 'null'
+                          example: Payment for invoice
+                        cardId:
+                          description: 'Conditional. Only permitted when paymentMethodId resolves to a gingrpayments processor — submitting it for any other processor returns a 422. Where permitted it is optional: omit it to charge the parent''s primary card on file. Obtain valid IDs from GET /v1/parents/{parentId}/card-on-file.'
+                          type: string
+                          example: pm_1234567890
+                        signature:
+                          description: Optional. Payment signature (max 255 characters)
+                          type:
+                          - string
+                          - 'null'
+                          example: base64signature
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with payment data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: payments
+                      id:
+                        description: Unique identifier of the created payment record
+                        type: integer
+                        example: 123
+                      attributes:
+                        properties:
+                          timeStamp:
+                            description: Timestamp when the payment was processed (ISO 8601)
+                            type: string
+                            format: date-time
+                            example: '2025-08-25T15:17:13Z'
+                          invoice:
+                            description: Updated invoice summary after payment
+                            properties:
+                              status:
+                                description: Current status of the invoice (Open, Closed, Voided)
+                                type: string
+                                example: Open
+                              remainingDue:
+                                description: Remaining balance due on the invoice after this payment
+                                type: string
+                                example: '430.00'
+                            type: object
+                        type: object
+                    type: object
+                type: object
+        '403':
+          description: Not authorized - invoice already closed or voided
+        '404':
+          description: Invoice not found
+        '400':
+          description: Payment failed — owner not found, amount exceeds balance, or processor error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: 'You may not charge more than the amount due: $50.00'
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '409':
+          description: Conflict - resource state prevents this action
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 409
+                  title: Conflict
+                  detail: Payment is already being processed for this invoice. Please wait.
+      security:
+      - XApiKey: []
+  /v1/payments/invoices/{invoiceId}/refund:
+    post:
+      tags:
+      - Payments
+      summary: Payments - Refund Invoices
+      description: Issues a full or partial refund for a paid invoice. The refund is applied back to the original payment method. A refund reason ID must be provided — use the Refund Reasons endpoint to retrieve valid options. All line items on the invoice are refunded; for item-level refunds use the Refund Items endpoint instead.
+      operationId: v1PaymentsInvoicesRefund
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: invoiceId
+        in: path
+        description: Invoice ID (valid Invoice ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '19196'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required: []
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: payments
+                    id:
+                      description: ID of the payment record to refund
+                      type: integer
+                      format: int64
+                      example: '3712'
+                    attributes:
+                      properties:
+                        amount:
+                          description: Amount to refund (must not exceed the original payment amount)
+                          type: integer
+                          format: int64
+                          example: '50'
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: payments
+                      id:
+                        description: Unique identifier of the refund payment record
+                        type: integer
+                        format: int64
+                        example: '3713'
+                      attributes:
+                        properties:
+                          amount:
+                            description: Refunded amount as a negative decimal string
+                            type: string
+                            example: '-50.00'
+                          timeStamp:
+                            description: Timestamp when the refund was processed (ISO 8601)
+                            type: string
+                            example: '2025-09-05T15:23:28Z'
+                          invoice:
+                            description: Updated invoice summary after refund
+                            properties:
+                              status:
+                                description: Current status of the invoice after refund
+                                type: string
+                                example: Open
+                              remainingDue:
+                                description: Remaining balance due on the invoice after this refund
+                                type: string
+                                example: '50.00'
+                            type: object
+                        type: object
+                    type: object
+                type: object
+        '400':
+          description: Refund failed — payment already refunded, amount exceeds balance, or payment not found on invoice
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: 'Payment Id: 123 has already been fully refunded'
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/payments/surcharge-rates:
+    get:
+      tags:
+      - Payments
+      summary: Surcharge Rate
+      description: Retrieve the surcharge rate for a location
+      operationId: SurchargeRate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: true
+        schema:
+          required:
+          - locationId
+          - paymentProcessor
+          properties:
+            locationId:
+              description: 'Location ID (should be valid ID, min: 1, max: 99999999)'
+              type: integer
+              example: 1
+            paymentProcessor:
+              description: Payment processor used by the location
+              type: string
+              enum:
+              - gingrpayments
+              - cardconnect
+              example: gingrpayments
+          type: object
+      responses:
+        '200':
+          description: Surcharge configured — returns rate data. For CardConnect, surchargeRate is always null (fee calculated dynamically per-transaction). For Stripe (gingrpayments), surchargeRate is the configured percentage.
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: surcharge-rates
+                      attributes:
+                        properties:
+                          surchargeRate:
+                            type:
+                            - string
+                            - 'null'
+                            example: '2.50'
+                          location:
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              name:
+                                type:
+                                - string
+                                - 'null'
+                                example: Happy Wags - Boulder
+                            type: object
+                        type: object
+                    type:
+                    - object
+                    - 'null'
+                  meta:
+                    properties:
+                      message:
+                        type: string
+                        example: Surcharge is not configured for this location.
+                    type:
+                    - object
+                    - 'null'
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
 components:
-  parameters:
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
+  responses:
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
   securitySchemes:
-    ApiKeyAuth:
+    XApiKey:
       type: apiKey
-      in: header
+      description: Handle an incoming request.
       name: X-Api-Key
-      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'
+      in: header

@@ -1,0 +1,411 @@
+openapi: 3.2.0
+info:
+  title: Gingr Booking Type Rates API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
+tags:
+- name: Booking Type Rates
+  description: Booking Type Rates
+paths:
+  /v1/config/booking-types/{bookingTypeId}/rates:
+    post:
+      tags:
+      - Booking Type Rates
+      summary: Booking Type Rates - Create
+      description: Create a new rate record for a booking type and location
+      operationId: BookingTypeRatesCreate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: bookingTypeId
+        in: path
+        description: The unique identifier of the booking type (valid bookingTypeId)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 264
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              properties:
+                data:
+                  required:
+                  - type
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: rates
+                    attributes:
+                      properties:
+                        locationId:
+                          description: Required. Must be a valid location ID. The booking type must be available at this location.
+                          type: integer
+                          example: 1
+                        rate:
+                          description: Required. Rate value (positive or negative)
+                          type: integer
+                          example: 25
+                        compareWith:
+                          description: 'Optional. Allowed: start_date, end_date, created_date. Default: start_date'
+                          type: string
+                          enum:
+                          - start_date
+                          - end_date
+                          - created_date
+                          example: start_date
+                        date:
+                          description: 'Optional. Format: Y-m-d. Default: 1990-01-01'
+                          type: string
+                          format: date
+                          example: '2026-06-06'
+                        resetCustomParentRate:
+                          description: 'Optional. If true, deletes custom parent rate records for this location and booking type. Default: false'
+                          type: boolean
+                          example: false
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Rate created successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: booking-type-rates
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        example: 150
+                      attributes:
+                        properties:
+                          location:
+                            description: Location this rate applies to
+                            properties:
+                              id:
+                                description: Location ID
+                                type: integer
+                                example: 1
+                              name:
+                                description: Location display name
+                                type: string
+                                example: Main Location - New York
+                            type: object
+                          bookingType:
+                            description: Booking type this rate applies to
+                            properties:
+                              id:
+                                description: Booking type ID
+                                type: integer
+                                example: 264
+                              name:
+                                description: Booking type display name
+                                type: string
+                                example: Daycare
+                            type: object
+                          rate:
+                            description: Rate amount as a decimal string
+                            type: string
+                            example: '25.00'
+                          effectiveDate:
+                            description: Date from which this rate takes effect (YYYY-MM-DD)
+                            type: string
+                            example: '2026-06-06'
+                          appliesTo:
+                            description: Human-readable description of when the rate applies relative to the effective date
+                            type: string
+                            example: starting on or after
+                        type: object
+                    type: object
+                  message:
+                    description: Human-readable status message
+                    type: string
+                    example: These rates have been saved successfully.
+                type: object
+        '404':
+          description: Booking type not found
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/config/booking-type-rates:
+    get:
+      tags:
+      - Booking Type Rates
+      summary: Booking Type Rates - List
+      description: Retrieve booking type rates list with filtering and pagination
+      operationId: BookingTypeRatesList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: true
+        schema:
+          required:
+          - locationId
+          properties:
+            locationId:
+              description: Required. Location ID (should be valid ID)
+              type: integer
+              example: 1
+            bookingTypeIds:
+              description: Optional. Array of booking type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 1
+              - 2
+              - 3
+            dateRange:
+              description: Optional. Date range filter
+              properties:
+                from:
+                  description: Optional. Start date (YYYY-MM-DD format)
+                  type: string
+                  example: '2024-01-01'
+                to:
+                  description: Optional. End date (YYYY-MM-DD format, must be on or after from date, max 730 days)
+                  type: string
+                  example: '2024-12-31'
+              type: object
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 25
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response with booking type rates data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        type: integer
+                        example: 1
+                      lastPage:
+                        type: integer
+                        example: 1
+                      perPage:
+                        type: integer
+                        example: 25
+                      total:
+                        type: integer
+                        example: 1
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          type: string
+                          example: booking-type-rates
+                        id:
+                          type: string
+                          example: '1'
+                        attributes:
+                          properties:
+                            locationId:
+                              type: string
+                              example: '1'
+                            bookingTypeId:
+                              type: string
+                              example: '264'
+                            rate:
+                              type: string
+                              example: '45.00'
+                            effectiveDate:
+                              type: string
+                              format: date
+                              example: '2025-01-01'
+                            appliesTo:
+                              type: string
+                              example: starting on or after
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+components:
+  responses:
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
+  securitySchemes:
+    XApiKey:
+      type: apiKey
+      description: Handle an incoming request.
+      name: X-Api-Key
+      in: header

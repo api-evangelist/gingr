@@ -1,0 +1,440 @@
+openapi: 3.2.0
+info:
+  title: Gingr Group Classes API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
+tags:
+- name: Group Classes
+  description: 'The **Group Classes** group manages enrollment in structured group training and activity sessions. Unlike individual bookings, group classes have a fixed schedule, a capacity limit, and a roster of enrolled animals.
+
+
+    Use this group to list available class sessions, check capacity, enroll an animal, and retrieve class rosters. Pricing for group classes is set at the class-type level in the Config group.'
+paths:
+  /v1/group-classes:
+    get:
+      tags:
+      - Group Classes
+      summary: Group Classes - List
+      description: Retrieve group classes list with filtering and pagination
+      operationId: GroupClassesList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter[locationId]
+        in: query
+        description: Optional. Filter by location ID (should be valid ID)
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: filter[active]
+        in: query
+        description: Optional. Filter by active status (true/false)
+        required: false
+        schema:
+          type: boolean
+          example: true
+      - name: page[size]
+        in: query
+        description: Number of items per page
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+          example: 25
+      - name: page[number]
+        in: query
+        description: 'Page number (min: 1, max: 999999999999999999)'
+        required: false
+        schema:
+          type: integer
+          maximum: 999999999999999999
+          minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Successful response with group classes data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: group-classes
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          format: int64
+                          example: 1
+                        attributes:
+                          properties:
+                            name:
+                              description: Display name of the group class
+                              type:
+                              - string
+                              - 'null'
+                              example: Puppy Obedience 101
+                            locationId:
+                              description: ID of the location where the class is held
+                              type: integer
+                              example: 2
+                            startDate:
+                              description: Class start date as an ISO 8601 date-time string
+                              type:
+                              - string
+                              - 'null'
+                              example: '2025-02-01T00:00:00Z'
+                            endDate:
+                              description: Class end date as an ISO 8601 date-time string
+                              type:
+                              - string
+                              - 'null'
+                              example: '2025-03-01T00:00:00Z'
+                            active:
+                              description: Whether the group class is currently active
+                              type: boolean
+                              example: true
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/group-classes/schedule:
+    get:
+      tags:
+      - Group Classes
+      summary: Group Classes - Schedule
+      description: Retrieve group class schedule with session details, enrollment counts, and filtering
+      operationId: GroupClassesSchedule
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter[locationId]
+        in: query
+        description: Optional. Filter by location ID (should be valid ID)
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: filter[bookingTypeId]
+        in: query
+        description: Optional. Filter by booking type ID (should be valid ID)
+        required: false
+        schema:
+          type: integer
+          example: 5
+      - name: filter[startDate]
+        in: query
+        description: Optional. Filter schedule sessions starting on or after this date (Y-m-d format)
+        required: false
+        schema:
+          type: string
+          format: date
+          example: '2025-02-01'
+      - name: filter[endDate]
+        in: query
+        description: Optional. Filter schedule sessions starting on or before this date (Y-m-d format, must be after or equal to startDate)
+        required: false
+        schema:
+          type: string
+          format: date
+          example: '2025-03-01'
+      - name: filter[includePast]
+        in: query
+        description: 'Optional. Include past schedule entries (default: false)'
+        required: false
+        schema:
+          type: boolean
+          example: false
+      - name: page[size]
+        in: query
+        description: Number of items per page
+        required: false
+        schema:
+          type: integer
+          enum:
+          - 10
+          - 25
+          - 50
+          - 100
+          example: 25
+      - name: page[number]
+        in: query
+        description: 'Page number (min: 1, max: 999999999999999999)'
+        required: false
+        schema:
+          type: integer
+          maximum: 999999999999999999
+          minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Successful response with group class schedule data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          type: string
+                          example: group-class-schedules
+                        id:
+                          type: integer
+                          format: int64
+                          example: 12
+                        attributes:
+                          properties:
+                            name:
+                              type:
+                              - string
+                              - 'null'
+                              example: Puppy Obedience 101
+                            description:
+                              type:
+                              - string
+                              - 'null'
+                              example: Basic obedience training for puppies
+                            instructor:
+                              type:
+                              - string
+                              - 'null'
+                              example: Jane Smith
+                            location:
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 2
+                                name:
+                                  type: string
+                                  example: Downtown Location
+                                city:
+                                  type: string
+                                  example: Denver
+                              type: object
+                            reservationType:
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 5
+                                name:
+                                  type: string
+                                  example: Group Training
+                              type: object
+                            capacity:
+                              type: integer
+                              example: 10
+                            openEnrollment:
+                              type: boolean
+                              example: true
+                            active:
+                              type: boolean
+                              example: true
+                            package:
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 3
+                                name:
+                                  type: string
+                                  example: Group Training 4-Pack
+                                price:
+                                  type: number
+                                  format: float
+                                  example: 150
+                                credits:
+                                  type: integer
+                                  example: 4
+                              type:
+                              - object
+                              - 'null'
+                            schedule:
+                              type: array
+                              items:
+                                properties:
+                                  scheduleId:
+                                    type: integer
+                                    example: 45
+                                  startDate:
+                                    type: string
+                                    example: '2025-02-01T10:00:00Z'
+                                  endDate:
+                                    type: string
+                                    example: '2025-02-01T11:00:00Z'
+                                  startTime:
+                                    type: string
+                                    example: 10:00 AM
+                                  endTime:
+                                    type: string
+                                    example: 11:00 AM
+                                  enrolledCount:
+                                    type: integer
+                                    example: 6
+                                  spotsRemaining:
+                                    type:
+                                    - integer
+                                    - 'null'
+                                    example: 4
+                                type: object
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+components:
+  responses:
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
+  securitySchemes:
+    XApiKey:
+      type: apiKey
+      description: Handle an incoming request.
+      name: X-Api-Key
+      in: header

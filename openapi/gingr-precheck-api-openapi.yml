@@ -1,0 +1,1277 @@
+openapi: 3.2.0
+info:
+  title: Gingr Precheck API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
+tags:
+- name: Precheck
+  description: 'The **Precheck** group handles the digital pre-check-in process for bookings. A pre-check collects animal care instructions — feeding, medications, behavioral notes, and custom form answers — before the animal arrives for its stay.
+
+
+    Whether pre-check is required depends on the organization''s settings and the booking type. When required, a booking cannot be fully confirmed until a pre-check has been submitted.
+
+
+    Use this group to retrieve the pre-check form definition for a booking and to submit completed form answers.'
+paths:
+  /v1/precheck:
+    get:
+      tags:
+      - Precheck
+      summary: Precheck - List
+      description: Retrieve paginated list of prechecks with filtering options (at least one filter is required)
+      operationId: PrecheckList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters (at least one filter is required)
+        required: false
+        schema:
+          properties:
+            locationId:
+              description: Optional. Filter by location ID (should be valid ID)
+              type: integer
+              example: 1
+            bookingTypeIds:
+              description: Optional. Filter by booking type IDs (min 1 item, should be valid IDs)
+              type: array
+              items:
+                type: integer
+              example:
+              - 10
+              - 20
+            name:
+              description: Optional. Filter by precheck name (min 3 characters)
+              type: string
+              example: Standard
+            active:
+              description: Optional. Filter by active status (true/false)
+              type: boolean
+              example: true
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 10
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response with precheck list
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        description: Current page number
+                        type: integer
+                        example: 1
+                      lastPage:
+                        description: Last available page number
+                        type: integer
+                        example: 5
+                      perPage:
+                        description: Number of records per page
+                        type: integer
+                        example: 10
+                      total:
+                        description: Total number of records across all pages
+                        type: integer
+                        example: 120
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: precheck
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          example: 5
+                        attributes:
+                          properties:
+                            name:
+                              description: Name of the precheck configuration
+                              type: string
+                              example: Standard Precheck
+                            active:
+                              description: Whether the precheck is currently active
+                              type: boolean
+                              example: true
+                            createdAt:
+                              description: Timestamp when the precheck was created
+                              type:
+                              - string
+                              - 'null'
+                              format: date-time
+                              example: '2024-01-15T10:30:00Z'
+                            locations:
+                              description: Locations associated with this precheck
+                              type: array
+                              items:
+                                properties:
+                                  id:
+                                    description: Unique identifier of the location
+                                    type: integer
+                                    example: 1
+                                  name:
+                                    description: Name of the location
+                                    type: string
+                                    example: Main Location - New York
+                                type: object
+                            bookingTypes:
+                              description: Booking types associated with this precheck
+                              type: array
+                              items:
+                                properties:
+                                  id:
+                                    description: Unique identifier of the booking type
+                                    type: integer
+                                    example: 10
+                                  name:
+                                    description: Name of the booking type
+                                    type: string
+                                    example: Daycare
+                                type: object
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+    post:
+      tags:
+      - Precheck
+      summary: Precheck - Create
+      description: Creates a new precheck record for a pet at a specific location. Prechecks capture pre-arrival health and behavior assessments — for example, confirming the pet is healthy, not showing signs of illness, and up-to-date on vaccinations. Organizations may require a completed precheck before a booking can proceed. Returns the created precheck with its ID.
+      operationId: PrecheckCreate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - data
+              properties:
+                data:
+                  required:
+                  - type
+                  - attributes
+                  properties:
+                    type:
+                      type: string
+                      example: precheck
+                    attributes:
+                      required:
+                      - name
+                      - locationIds
+                      - bookingTypeIds
+                      - emailSmsMinutesBeforeStart
+                      properties:
+                        name:
+                          description: Precheck name (3-255 characters)
+                          type: string
+                          example: Standard Precheck
+                        active:
+                          description: Optional. Active status
+                          type: boolean
+                          example: true
+                        locationIds:
+                          description: Location IDs (max 500, should be valid active location IDs)
+                          type: array
+                          items:
+                            type: integer
+                          example:
+                          - 1
+                          - 2
+                          - 3
+                        bookingTypeIds:
+                          description: Booking type IDs (max 500, should be valid non-deleted IDs belonging to the given locations, must not be assigned to another precheck form)
+                          type: array
+                          items:
+                            type: integer
+                          example:
+                          - 10
+                          - 20
+                        serviceTypeIds:
+                          description: Optional. Service type IDs (max 500, should be valid non-deleted IDs belonging to the given booking types and locations)
+                          type: array
+                          items:
+                            type: integer
+                          example:
+                          - 5
+                          - 6
+                        requireStaffConfirmation:
+                          description: Optional. Require staff confirmation
+                          type: boolean
+                          example: false
+                        showCheckInQuestions:
+                          description: Optional. Show check-in questions
+                          type: boolean
+                          example: true
+                        allowCustomerBelongings:
+                          description: Optional. Allow customer belongings
+                          type: boolean
+                          example: true
+                        showFormAtCheckIn:
+                          description: Optional. Show form at check-in
+                          type: boolean
+                          example: false
+                        requireCustomerSignature:
+                          description: Optional. Require customer signature
+                          type: boolean
+                          example: true
+                        emailSmsMinutesBeforeStart:
+                          description: 'Minutes before start to send email/SMS (minimum: 1440)'
+                          type: integer
+                          example: 1440
+                        checkInInstruction:
+                          description: Optional. Check-in instructions
+                          type: string
+                          example: Please arrive 15 minutes early
+                        bannerPhoto:
+                          description: 'Optional. Banner photo URL (valid GCP file URL, allowed types: JPG, JPEG, PNG, GIF, SVG)'
+                          type: string
+                          example: https://storage.googleapis.com/example/banner.jpg
+                        parentFormFields:
+                          description: Optional. Parent form field IDs (UUIDs from master form, toggleable fields only)
+                          type: array
+                          items:
+                            type: string
+                          example:
+                          - 6F849135-7CFA-409C-BC28-5938D7DC7E95
+                          - 8E3E1387-3903-4BAD-9A7F-F52D8AB1578C
+                        petFormFields:
+                          description: Optional. Pet form field IDs (UUIDs from master form, toggleable fields only)
+                          type: array
+                          items:
+                            type: string
+                          example:
+                          - A1B2C3D4-5678-90AB-CDEF-1234567890AB
+                        bookingFormFields:
+                          description: Optional. Booking form field IDs (UUIDs from master form, toggleable fields only)
+                          type: array
+                          items:
+                            type: string
+                          example:
+                          - D4E5F6A7-B8C9-0D1E-2F3A-4B5C6D7E8F9A
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with created precheck data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: precheck
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        example: 1
+                    type: object
+                  message:
+                    description: Human-readable status message
+                    type: string
+                    example: Precheck record created successfully
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/precheck/{precheckId}:
+    get:
+      tags:
+      - Precheck
+      summary: Precheck - Details
+      description: Returns the full details of a single precheck record by its ID, including all submitted assessment answers, completion status, and the associated pet and location. Use this to display the precheck form responses to staff, or to verify whether a pet's precheck is complete before approving a booking.
+      operationId: PrecheckDetails
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: precheckId
+        in: path
+        description: Precheck ID (valid Precheck ID)
+        required: true
+        schema:
+          type: integer
+          example: 1
+      responses:
+        '200':
+          description: Successful response with precheck data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: precheck
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        example: 1
+                      attributes:
+                        properties:
+                          name:
+                            description: Name of the precheck configuration
+                            type: string
+                            example: Standard Precheck
+                          active:
+                            description: Whether the precheck is currently active
+                            type: boolean
+                            example: true
+                          requireStaffConfirmation:
+                            description: Whether staff must confirm the precheck before a booking proceeds
+                            type: boolean
+                            example: false
+                          showCheckInQuestions:
+                            description: Whether check-in questions are displayed to the customer
+                            type: boolean
+                            example: true
+                          allowCustomerBelongings:
+                            description: Whether customers can declare belongings they are bringing
+                            type: boolean
+                            example: true
+                          showFormAtCheckIn:
+                            description: Whether the precheck form is shown again at physical check-in
+                            type: boolean
+                            example: false
+                          requireCustomerSignature:
+                            description: Whether a customer digital signature is required to complete the precheck
+                            type: boolean
+                            example: true
+                          emailSmsMinutesBeforeStart:
+                            description: Number of minutes before booking start to send the precheck email/SMS reminder
+                            type: integer
+                            example: 1440
+                          checkInInstruction:
+                            description: Custom check-in instructions shown to the customer
+                            type:
+                            - string
+                            - 'null'
+                            example: Please arrive 15 minutes early
+                          bannerPhoto:
+                            description: URL of the banner photo displayed on the precheck form
+                            type:
+                            - string
+                            - 'null'
+                            example: https://storage.googleapis.com/example/banner.jpg
+                          locationIds:
+                            description: IDs of locations where this precheck applies
+                            type: array
+                            items:
+                              type: integer
+                            example:
+                            - 1
+                            - 2
+                            - 3
+                          bookingTypeIds:
+                            description: IDs of booking types that trigger this precheck
+                            type: array
+                            items:
+                              type: integer
+                            example:
+                            - 10
+                            - 20
+                          serviceTypeIds:
+                            description: IDs of service types that trigger this precheck
+                            type: array
+                            items:
+                              type: integer
+                            example:
+                            - 5
+                            - 6
+                          parentFormFields:
+                            description: Enabled parent form field IDs (precheck_Status = true)
+                            type: array
+                            items:
+                              type: string
+                            example:
+                            - 28AE38DD-422D-4A02-A6B3-B557D701E0F7
+                            - F827C3B6-E420-4A0E-BF70-FD1AFEDF909C
+                          petFormFields:
+                            description: Enabled pet form field IDs (precheck_Status = true)
+                            type: array
+                            items:
+                              type: string
+                            example:
+                            - 4394AA81-1046-4D5B-8AFB-ED858534C3AB
+                          bookingFormFields:
+                            description: Enabled booking form field IDs (precheck_Status = true)
+                            type: array
+                            items:
+                              type: string
+                            example:
+                            - 6F849135-7CFA-409C-BC28-5938D7DC7E95
+                          createdBy:
+                            description: ID of the user who created the precheck
+                            type:
+                            - integer
+                            - 'null'
+                            example: 1
+                          createdDate:
+                            description: Timestamp when the precheck was created
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                            example: '2024-01-15T10:30:00Z'
+                        type: object
+                    type: object
+                type: object
+        '404':
+          description: Precheck not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Precheck not found
+                type: object
+      security:
+      - XApiKey: []
+    put:
+      tags:
+      - Precheck
+      summary: Precheck - Update
+      description: Updates an existing precheck record with revised health or behavior assessment data. Only the fields provided are changed. Use this to correct answers submitted during precheck intake, or to update the precheck status after a staff review. Returns 404 if the precheck record does not exist.
+      operationId: PrecheckUpdate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: precheckId
+        in: path
+        description: Precheck ID (valid Precheck ID)
+        required: true
+        schema:
+          type: integer
+          example: 1
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - data
+              properties:
+                data:
+                  required:
+                  - type
+                  - id
+                  - attributes
+                  properties:
+                    type:
+                      type: string
+                      example: precheck
+                    id:
+                      type: integer
+                      example: 1
+                    attributes:
+                      required:
+                      - name
+                      - locationIds
+                      - bookingTypeIds
+                      - emailSmsMinutesBeforeStart
+                      properties:
+                        name:
+                          description: Precheck name (3-255 characters)
+                          type: string
+                          example: Standard Precheck
+                        active:
+                          description: Optional. Active status
+                          type: boolean
+                          example: true
+                        locationIds:
+                          description: Location IDs (max 500, should be valid active location IDs)
+                          type: array
+                          items:
+                            type: integer
+                          example:
+                          - 1
+                          - 2
+                          - 3
+                        bookingTypeIds:
+                          description: Booking type IDs (max 500, should be valid non-deleted IDs belonging to the given locations, must not be assigned to another precheck form)
+                          type: array
+                          items:
+                            type: integer
+                          example:
+                          - 10
+                          - 20
+                        serviceTypeIds:
+                          description: Optional. Service type IDs (max 500, should be valid non-deleted IDs belonging to the given booking types and locations)
+                          type: array
+                          items:
+                            type: integer
+                          example:
+                          - 5
+                          - 6
+                        requireStaffConfirmation:
+                          description: Optional. Require staff confirmation
+                          type: boolean
+                          example: false
+                        showCheckInQuestions:
+                          description: Optional. Show check-in questions
+                          type: boolean
+                          example: true
+                        allowCustomerBelongings:
+                          description: Optional. Allow customer belongings
+                          type: boolean
+                          example: true
+                        showFormAtCheckIn:
+                          description: Optional. Show form at check-in
+                          type: boolean
+                          example: false
+                        requireCustomerSignature:
+                          description: Optional. Require customer signature
+                          type: boolean
+                          example: true
+                        emailSmsMinutesBeforeStart:
+                          description: 'Minutes before start to send email/SMS (minimum: 1440)'
+                          type: integer
+                          example: 1440
+                        checkInInstruction:
+                          description: Optional. Check-in instructions
+                          type: string
+                          example: Please arrive 15 minutes early
+                        bannerPhoto:
+                          description: 'Optional. Banner photo URL (valid GCP file URL, allowed types: JPG, JPEG, PNG, GIF, SVG)'
+                          type: string
+                          example: https://storage.googleapis.com/example/banner.jpg
+                        parentFormFields:
+                          description: Optional. Parent form field IDs (UUIDs from master form, toggleable fields only)
+                          type: array
+                          items:
+                            type: string
+                          example:
+                          - 6F849135-7CFA-409C-BC28-5938D7DC7E95
+                          - 8E3E1387-3903-4BAD-9A7F-F52D8AB1578C
+                        petFormFields:
+                          description: Optional. Pet form field IDs (UUIDs from master form, toggleable fields only)
+                          type: array
+                          items:
+                            type: string
+                          example:
+                          - A1B2C3D4-5678-90AB-CDEF-1234567890AB
+                        bookingFormFields:
+                          description: Optional. Booking form field IDs (UUIDs from master form, toggleable fields only)
+                          type: array
+                          items:
+                            type: string
+                          example:
+                          - D4E5F6A7-B8C9-0D1E-2F3A-4B5C6D7E8F9A
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with updated precheck data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: precheck
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        example: 1
+                    type: object
+                  message:
+                    description: Human-readable status message
+                    type: string
+                    example: Precheck record updated successfully
+                type: object
+        '404':
+          description: Precheck not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Precheck data not found
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+    delete:
+      tags:
+      - Precheck
+      summary: Precheck - Delete
+      description: Permanently deletes a precheck record by its ID. Use this to remove a precheck that was submitted in error or is no longer relevant. This action is irreversible — the precheck and all associated responses will be removed. Returns 404 if the record does not exist.
+      operationId: PrecheckDelete
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: precheckId
+        in: path
+        description: Precheck ID (valid Precheck ID)
+        required: true
+        schema:
+          type: integer
+          example: 92
+      responses:
+        '200':
+          description: Successful response with deleted precheck data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: precheck
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        example: 92
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: PreCheck record deleted successfully.
+                    type: object
+                type: object
+        '404':
+          description: Precheck not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Precheck not found
+                type: object
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: Failed to delete precheck.
+      security:
+      - XApiKey: []
+  /v1/precheck-history:
+    get:
+      tags:
+      - Precheck
+      summary: Precheck History - List
+      description: Retrieve paginated list of precheck history with filtering options (at least one filter is required)
+      operationId: PrecheckHistoryList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters (at least one filter is required)
+        required: false
+        schema:
+          properties:
+            parentId:
+              description: Optional. Filter by parent ID (should be valid ID)
+              type: integer
+              example: 30
+            bookingId:
+              description: Optional. Filter by booking ID (should be valid ID)
+              type: integer
+              example: 1012
+            created:
+              description: Optional. Filter by created date range
+              properties:
+                from:
+                  description: Optional. Start date (YYYY-MM-DD format)
+                  type: string
+                  example: '2024-01-01'
+                to:
+                  description: Optional. End date (YYYY-MM-DD format, must be after or equal to from, max 365 days range)
+                  type: string
+                  example: '2024-12-31'
+              type: object
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 25
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response with precheck history data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        description: Current page number
+                        type: integer
+                        example: 1
+                      lastPage:
+                        description: Last available page number
+                        type: integer
+                        example: 5
+                      perPage:
+                        description: Number of records per page
+                        type: integer
+                        example: 25
+                      total:
+                        description: Total number of records across all pages
+                        type: integer
+                        example: 120
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: precheck-history
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          example: 1
+                        attributes:
+                          properties:
+                            bookingId:
+                              description: ID of the booking associated with this precheck history entry
+                              type: integer
+                              example: 1012
+                            title:
+                              description: Title or label describing the precheck submission
+                              type: string
+                              example: Gingr PreCheck Customer Portal Submission
+                            createdAt:
+                              description: Timestamp when the precheck history entry was created
+                              type:
+                              - string
+                              - 'null'
+                              format: date-time
+                              example: '2024-01-15T10:30:00Z'
+                            createdBy:
+                              properties:
+                                id:
+                                  description: Unique identifier of the user who created the entry
+                                  type: integer
+                                  example: 30
+                                name:
+                                  description: Name of the user who created the entry
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: John Doe
+                              type:
+                              - object
+                              - 'null'
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/precheck-history/{historyId}:
+    get:
+      tags:
+      - Precheck
+      summary: Precheck History - Details
+      description: Retrieve precheck history details by ID
+      operationId: PrecheckHistoryDetails
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: historyId
+        in: path
+        description: Precheck History ID (valid Precheck History ID)
+        required: true
+        schema:
+          type: integer
+          example: 1
+      responses:
+        '200':
+          description: Successful response with precheck history data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: precheck-historys
+                      id:
+                        description: The reservation_id associated with this precheck history entry
+                        type: integer
+                        example: 1
+                      attributes:
+                        properties:
+                          BookingId:
+                            description: ID of the booking associated with this precheck history entry
+                            type: integer
+                            example: 123
+                          StaffInitial:
+                            description: Initials of the staff member who confirmed the precheck
+                            type:
+                            - string
+                            - 'null'
+                            example: JD
+                          createdDate:
+                            description: Timestamp when this history entry was created
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                            example: '2024-01-15T10:30:00Z'
+                          CreatedBy:
+                            description: Name of the user who created this history entry
+                            type:
+                            - string
+                            - 'null'
+                            example: John Doe
+                          ParentInfo:
+                            description: Owner/parent profile data captured at precheck time
+                            type:
+                            - object
+                            - 'null'
+                          PetInfo:
+                            description: Pet profile data captured at precheck time
+                            type:
+                            - object
+                            - 'null'
+                          BookingInfo:
+                            description: Booking details captured at precheck time
+                            type:
+                            - object
+                            - 'null'
+                          CheckInQuestions:
+                            description: Check-in question responses captured at precheck time
+                            type:
+                            - object
+                            - 'null'
+                          ReservationDetails:
+                            description: Reservation details captured at precheck time
+                            type:
+                            - object
+                            - 'null'
+                          ServicesDetails:
+                            description: Service details captured at precheck time
+                            type:
+                            - object
+                            - 'null'
+                          Lodgings:
+                            description: Lodging details captured at precheck time
+                            type:
+                            - object
+                            - 'null'
+                          BelongingsDetails:
+                            description: Customer belongings declared at precheck time
+                            type:
+                            - object
+                            - 'null'
+                        type: object
+                    type: object
+                type: object
+        '404':
+          description: Precheck history not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Precheck data not found
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+    delete:
+      tags:
+      - Precheck
+      summary: Precheck History - Delete
+      description: Delete a precheck history record by ID
+      operationId: PrecheckHistoryDelete
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: historyId
+        in: path
+        description: Precheck History ID (valid Precheck History ID)
+        required: true
+        schema:
+          type: integer
+          example: 1
+      responses:
+        '200':
+          description: Successful response with deletion confirmation
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: precheck-history
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        example: 1
+                    type: object
+                type: object
+        '404':
+          description: Precheck history not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Precheck History data not found
+                type: object
+      security:
+      - XApiKey: []
+components:
+  responses:
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
+  securitySchemes:
+    XApiKey:
+      type: apiKey
+      description: Handle an incoming request.
+      name: X-Api-Key
+      in: header

@@ -1,0 +1,415 @@
+openapi: 3.2.0
+info:
+  title: Gingr Payment API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
+tags:
+- name: Payment
+  description: Payment
+paths:
+  /v1/payments/charge:
+    post:
+      tags:
+      - Payment
+      summary: Payment - Charge
+      description: Process payment charge for products. The product parameter in the API is used as a product reference to prevent unauthorized or incorrect charge amounts and enhance security. It does not represent an actual product purchase; it is only used to process a charge through the specified payment processor.
+      operationId: PaymentCharge
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              properties:
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: charge
+                    attributes:
+                      description: Payment charge attributes
+                      required:
+                      - locationId
+                      - parentId
+                      - paymentProcessor
+                      - amount
+                      - products
+                      properties:
+                        locationId:
+                          description: Location ID (should be valid active location ID)
+                          type: integer
+                          example: 1
+                        parentId:
+                          description: Parent ID (should be valid ID)
+                          type: integer
+                          example: 1
+                        paymentProcessor:
+                          description: 'Payment processor (allowed: cardconnect, gingrpayments)'
+                          type: string
+                          enum:
+                          - cardconnect
+                          - gingrpayments
+                          example: gingrpayments
+                        cardId:
+                          description: Optional. Card ID or payment method ID
+                          type: string
+                          example: pm_1234567890
+                        amount:
+                          description: Payment amount (must be valid amount format)
+                          type: number
+                          format: float
+                          example: 25.99
+                        products:
+                          description: Products to charge for (minimum 1 item). This parameter is used as a product reference to prevent unauthorized or incorrect charge amounts and enhance security. It does not represent an actual product purchase; it is only used to process a charge through the specified payment processor.
+                          type: array
+                          items:
+                            properties:
+                              type:
+                                description: 'Product type (allowed: bookingType, POSItem, OpenLineItem, package, subscription, service, membership, storeCredit, deposit, invoice)'
+                                type: string
+                                enum:
+                                - bookingType
+                                - POSItem
+                                - openLineItem
+                                - package
+                                - subscription
+                                - service
+                                - membership
+                                - storeCredit
+                                - deposit
+                                - invoice
+                                example: POSItem
+                              id:
+                                description: Product ID (should be valid ID for the specified type)
+                                type: integer
+                                example: 1
+                            type: object
+                          example:
+                          - type: POSItem
+                            id: 1
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful payment charge
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    description: JSON:API version information
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    description: Charge resource object
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: charge
+                      id:
+                        description: Unique identifier of the charge transaction
+                        type: integer
+                        example: 166
+                      attributes:
+                        description: Payment transaction attributes
+                        properties:
+                          retref:
+                            description: Reference ID (CardConnect only)
+                            type: string
+                            example: null
+                          transactionId:
+                            description: Transaction ID
+                            type: integer
+                            example: 166
+                          authCode:
+                            description: Authorization code (CardConnect only)
+                            type: string
+                            example: null
+                        type: object
+                    type: object
+                  meta:
+                    description: Response metadata
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Payment charged successfully
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: This payment processor is either inactive or not configured for the selected location.
+      security:
+      - XApiKey: []
+  /v1/payments/void-items:
+    post:
+      tags:
+      - Payment
+      summary: Payment - Void Items
+      description: Void one or more invoice line items for non-deposit payments. Items are soft-voided and invoice totals are recalculated.
+      operationId: PaymentVoidItems
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              properties:
+                data:
+                  properties:
+                    type:
+                      type: string
+                      example: void-items
+                    attributes:
+                      required:
+                      - invoiceId
+                      - itemIds
+                      - reason
+                      properties:
+                        invoiceId:
+                          description: Invoice ID (should be valid invoice ID with no active deposits)
+                          type: integer
+                          example: 12345
+                        itemIds:
+                          description: Array of invoice line item IDs to void (minimum 1 item)
+                          type: array
+                          items:
+                            type: integer
+                            example: 101
+                          minItems: 1
+                          example:
+                          - 101
+                          - 102
+                          - 103
+                        reason:
+                          description: Reason for voiding (max 500 characters)
+                          type: string
+                          maxLength: 500
+                          example: Customer requested correction
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with void results
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: void-items
+                      id:
+                        type: integer
+                        example: 12345
+                      attributes:
+                        properties:
+                          invoiceId:
+                            type: integer
+                            example: 12345
+                          voidedItemIds:
+                            type: array
+                            items:
+                              type: integer
+                            example:
+                            - 101
+                            - 102
+                            - 103
+                          errors:
+                            type: array
+                            items:
+                              properties:
+                                itemId:
+                                  type: integer
+                                  example: 104
+                                message:
+                                  type: string
+                                  example: This package has already been used and cannot be voided.
+                              type: object
+                            example: []
+                        type: object
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        type: string
+                        example: Items voided successfully.
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+components:
+  responses:
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
+  securitySchemes:
+    XApiKey:
+      type: apiKey
+      description: Handle an incoming request.
+      name: X-Api-Key
+      in: header

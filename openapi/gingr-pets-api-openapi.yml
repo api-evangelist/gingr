@@ -1,250 +1,3968 @@
 openapi: 3.2.0
 info:
-  title: Gingr Partner Pets API
-  description: Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming).
-  version: 1.8.0
-  contact:
-    name: Gingr
-    url: https://www.gingrapp.com
-servers:
-- url: https://api.gingr.io
-  description: Gingr Partner API (production)
-security:
-- ApiKeyAuth: []
+  title: Gingr Pets API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
 tags:
 - name: Pets
-  description: Pet profiles belonging to an owner.
+  description: 'The **Pets** group manages **Animals** — the pets that belong to a Parent. In Gingr, the internal model is called `Animal` but the API surfaces it as `Pet` for clarity.
+
+
+    Use this group to:
+
+
+    - **List** all pets for a parent or search across the organization.
+
+    - **Create** a new pet and associate it with an existing parent.
+
+    - **Update** pet profile data including breed, weight, birthdate, and special notes.
+
+    - **Manage immunizations** — attach vaccination records required before the animal can be booked.
+
+    - **Manage medications** — record medications the animal is currently taking so staff are informed during the stay.
+
+    - **Retrieve feeding instructions** — feeding details attached to the pet for use during overnight stays.
+
+
+    Key things to know:
+
+
+    - A pet must belong to a **Parent** — you cannot create a pet without a valid `parentId`.
+
+    - **Species** and **Breed** must reference valid IDs from the Config endpoints (`/v1/species`, `/v1/breeds`).
+
+    - **Immunization requirements** vary by organization and booking type. Check the Config immunization endpoints to know which vaccines are required for a given booking.
+
+    - A pet can have a **temperament** flag that may affect which runs or services are available for booking.'
 paths:
-  /v1/pets:
+  /v1/pets/{petId}/immunizations:
     get:
-      operationId: v1PetsList
       tags:
       - Pets
-      summary: Pets - List
-      description: Lists pet profiles, filterable by name, owner, species, or breed.
+      summary: Pets Immunizations - List
+      description: Retrieve list of immunizations for a specific pet with optional expiration filtering
+      operationId: v1PetsImmunizationsList
       parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - name: filter[parentId]
-        in: query
-        required: false
-        schema:
-          type: integer
-      - name: page[size]
-        in: query
-        required: false
-        schema:
-          type: integer
-          enum:
-          - 10
-          - 25
-          - 50
-          - 100
-      - name: page[number]
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 1
-      responses:
-        '200':
-          description: A page of pet resources.
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/PetListResponse'
-    post:
-      operationId: v1PetsCreate
-      tags:
-      - Pets
-      summary: Pets - Create
-      description: Creates a new pet profile belonging to an owner.
-      parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - $ref: '#/components/parameters/ContentType'
-      requestBody:
+      - name: subdomain
+        in: header
+        description: Organization subdomain
         required: true
-        content:
-          application/vnd.api+json:
-            schema:
-              $ref: '#/components/schemas/PetCreateRequest'
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Accept header for API version
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid pet identifier)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      - name: filter[isExpired]
+        in: query
+        description: Optional. Filter by expiration status (true/false, 1/0, "true"/"false")
+        required: false
+        schema:
+          type: boolean
+          example: false
       responses:
         '200':
-          description: The created pet resource.
+          description: Successfully retrieved immunizations list
           content:
             application/vnd.api+json:
               schema:
-                $ref: '#/components/schemas/PetResponse'
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      total:
+                        description: Total number of immunization records for the pet
+                        type: integer
+                        format: int64
+                        example: 3
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: immunizations
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          format: int64
+                          example: 10
+                        attributes:
+                          properties:
+                            immunizationTypeId:
+                              description: ID of the immunization type (e.g., Rabies, Bordetella)
+                              type: integer
+                              format: int64
+                              example: 2
+                            immunizationType:
+                              description: Display name of the immunization type
+                              type: string
+                              example: Bordetella
+                            expirationDate:
+                              description: Date when the immunization expires (YYYY-MM-DD)
+                              type: string
+                              format: date
+                              example: '2030-08-29'
+                            immunizationNotes:
+                              description: Optional notes about the immunization
+                              type:
+                              - string
+                              - 'null'
+                              example: Vaccination completed successfully
+                            lastUpdateDate:
+                              description: Date the immunization record was last updated (YYYY-MM-DD)
+                              type: string
+                              format: date
+                              example: '2025-07-31'
+                            lastUpdatedBy:
+                              description: ID of the user who last updated this immunization record
+                              type:
+                              - integer
+                              - 'null'
+                              format: int64
+                              example: 1
+                          type: object
+                      type: object
+                type: object
         '422':
-          $ref: '#/components/responses/ValidationError'
-  /v1/pets/{petId}:
-    parameters:
-    - $ref: '#/components/parameters/Subdomain'
-    - $ref: '#/components/parameters/Accept'
-    - name: petId
-      in: path
-      required: true
-      schema:
-        type: integer
-    get:
-      operationId: v1PetsDetails
-      tags:
-      - Pets
-      summary: Pets - Details
-      description: Retrieves a single pet profile by ID, including breed, feeding, and medication data.
-      responses:
-        '200':
-          description: The requested pet resource.
+          $ref: '#/components/responses/ValidationResponse'
+        '404':
+          description: Not found
           content:
-            application/vnd.api+json:
+            application/json:
               schema:
-                $ref: '#/components/schemas/PetResponse'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                type: object
+              example:
+                errors:
+                - status: 404
+                  title: Not Found
+                  detail: Pet not found
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/immunizations/{immunizationTypeId}:
     put:
-      operationId: v1PetsUpdate
       tags:
       - Pets
-      summary: Pets - Update
-      requestBody:
-        required: true
-        content:
-          application/vnd.api+json:
-            schema:
-              $ref: '#/components/schemas/PetCreateRequest'
-      responses:
-        '200':
-          description: The updated pet resource.
-        '404':
-          $ref: '#/components/responses/NotFound'
-    delete:
-      operationId: v1PetsDelete
-      tags:
-      - Pets
-      summary: Delete Pet
-      responses:
-        '200':
-          description: Deletion confirmation.
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /v1/pets/merge:
-    post:
-      operationId: v1PetsMerge
-      tags:
-      - Pets
-      summary: Pets - Merge
+      summary: Pets Immunizations - Update
+      description: Updates an existing immunization record for a specific pet. Use this to record a new vaccination date, update an expiration date, or correct immunization details. The immunization type ID must reference a valid record already on file for the pet. Returns 404 if the pet or immunization record does not exist. At least one of immunizationDate or immunizationNotes must be provided.
+      operationId: PetsImmunizationsUpdate
       parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - $ref: '#/components/parameters/ContentType'
-      requestBody:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
         required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid pet identifier)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2904'
+      - name: immunizationTypeId
+        in: path
+        description: Immunization type ID (valid immunization type identifier)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '9'
+      requestBody:
         content:
           application/vnd.api+json:
             schema:
+              required: []
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: immunizations
+                    id:
+                      description: Immunization type ID to update
+                      type: integer
+                      format: int64
+                      example: '9'
+                    attributes:
+                      properties:
+                        immunizationDate:
+                          description: Date the immunization was administered (YYYY-MM-DD); used to compute expiration. Required if immunizationNotes is not provided.
+                          type: string
+                          example: '2035-01-01'
+                        immunizationNotes:
+                          description: Notes about the immunization. Required if immunizationDate is not provided.
+                          type: string
+                          example: Test notes
+                      type: object
+                  type: object
               type: object
       responses:
         '200':
-          description: Merge confirmation.
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: immunizations
+                      id:
+                        description: Unique identifier of the updated immunization record
+                        type: integer
+                        format: int64
+                        example: '9'
+                      attributes:
+                        properties:
+                          immunizationNotes:
+                            description: Notes about the immunization
+                            type: string
+                            example: Test notes
+                          expirationDate:
+                            description: Updated expiration date of the immunization (ISO 8601)
+                            type: string
+                            example: '2035-01-01T00:00:00Z'
+                          lastUpdatedAt:
+                            description: Timestamp when the immunization record was last updated (ISO 8601)
+                            type: string
+                            example: '2025-08-19T15:31:35Z'
+                          lastUpdatedBy:
+                            description: ID of the user who last updated this record
+                            type: integer
+                            format: int64
+                            example: '1838'
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/pet-notes:
+    post:
+      tags:
+      - Pets
+      summary: Pet Employee Notes - Create
+      description: Creates a new internal staff note on a specific pet's profile. Employee notes are private records visible only to staff — not to the pet owner. Use these to log behavioral observations, care instructions, incident reports, or any other pet-specific information that staff should be aware of across future visits.
+      operationId: PetEmployeeNoteCreate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2899'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - locationId
+              - noteTypeId
+              - note
+              properties:
+                data:
+                  properties:
+                    type:
+                      type: string
+                      example: pet-notes
+                    attributes:
+                      properties:
+                        locationId:
+                          description: Location ID (should be valid active location ID)
+                          type: integer
+                          format: int64
+                          example: '1'
+                        noteTypeId:
+                          description: Note type ID (should be valid animal note type ID)
+                          type: integer
+                          format: int64
+                          example: '1'
+                        note:
+                          description: Note content (max 500 characters)
+                          type: string
+                          example: Pet is allergic to chicken
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with pet employee note data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pet-notes
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '123'
+                      attributes:
+                        properties:
+                          petId:
+                            description: ID of the pet this note belongs to
+                            type: integer
+                            format: int64
+                            example: '2899'
+                          noteType:
+                            properties:
+                              id:
+                                description: Unique resource identifier
+                                type: integer
+                                format: int64
+                                example: '1'
+                              name:
+                                description: Display name of the note type
+                                type:
+                                - string
+                                - 'null'
+                                example: General
+                            type: object
+                          note:
+                            description: Staff note content
+                            type:
+                            - string
+                            - 'null'
+                            example: Pet is allergic to chicken
+                          createdBy:
+                            properties:
+                              id:
+                                description: Unique resource identifier
+                                type: integer
+                                format: int64
+                                example: '1'
+                              name:
+                                description: Display name of the staff member who created the note
+                                type:
+                                - string
+                                - 'null'
+                                example: Partner API
+                            type: object
+                          createdAt:
+                            description: ISO 8601 timestamp of when the note was created
+                            type: string
+                            example: '2026-04-07T17:24:53Z'
+                          location:
+                            properties:
+                              id:
+                                description: Unique resource identifier
+                                type: integer
+                                format: int64
+                                example: '1'
+                              name:
+                                description: Display name of the location
+                                type:
+                                - string
+                                - 'null'
+                                example: Main Location - New York
+                            type: object
+                        type: object
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Pet employee note added successfully
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/pet-notes/{noteId}:
+    put:
+      tags:
+      - Pets
+      summary: Pet Employee Notes - Update
+      description: Updates the content of an existing staff note on a specific pet's profile. Use this to correct or append information to a previously recorded observation or care instruction. Both the pet ID and note ID must be valid. Returns 404 if either does not exist.
+      operationId: PetEmployeeNoteUpdate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2899'
+      - name: noteId
+        in: path
+        description: Employee Note ID (valid Pet Employee Note ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '123'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              properties:
+                data:
+                  properties:
+                    type:
+                      type: string
+                      example: pet-notes
+                    id:
+                      type: integer
+                      format: int64
+                      example: '123'
+                    attributes:
+                      properties:
+                        noteTypeId:
+                          description: Optional. Note type ID (should be valid animal note type ID)
+                          type: integer
+                          format: int64
+                          example: '1'
+                        note:
+                          description: Optional. Note content (max 500 characters)
+                          type: string
+                          example: Updated pet note
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with updated pet employee note data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pet-notes
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '123'
+                      attributes:
+                        properties:
+                          petId:
+                            description: ID of the pet this note belongs to
+                            type: integer
+                            format: int64
+                            example: '2899'
+                          noteType:
+                            properties:
+                              id:
+                                description: Unique resource identifier
+                                type: integer
+                                format: int64
+                                example: '1'
+                              name:
+                                description: Display name of the note type
+                                type:
+                                - string
+                                - 'null'
+                                example: General
+                            type: object
+                          note:
+                            description: Staff note content
+                            type:
+                            - string
+                            - 'null'
+                            example: Updated pet note
+                          updatedBy:
+                            properties:
+                              id:
+                                description: Unique resource identifier
+                                type: integer
+                                format: int64
+                                example: '1'
+                              name:
+                                description: Display name of the staff member who last updated the note
+                                type:
+                                - string
+                                - 'null'
+                                example: Partner API
+                            type: object
+                          updatedAt:
+                            description: ISO 8601 timestamp of when the note was last updated
+                            type: string
+                            example: '2026-04-07T17:24:53Z'
+                          location:
+                            properties:
+                              id:
+                                description: Unique resource identifier
+                                type: integer
+                                format: int64
+                                example: '1'
+                              name:
+                                description: Display name of the location
+                                type:
+                                - string
+                                - 'null'
+                                example: Main Location - New York
+                            type: object
+                        type: object
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Pet employee note updated successfully
+                    type: object
+                type: object
+        '404':
+          description: Pet or note not found
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets:
+    get:
+      tags:
+      - Pets
+      summary: Pets - List
+      description: Returns a paginated list of animals (pets) registered in the organization. Filter by parent email, home phone, cell phone, or pet name to narrow results. Each result includes the pet's basic profile data and its linked parent ID. At least one filter parameter is required to prevent returning the entire dataset.
+      operationId: getPetsList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: false
+        schema:
+          properties:
+            parentEmail:
+              description: Optional. Filter by parent email (max 255 characters)
+              type: string
+              example: mgalla@togetherwork.com
+            parentHomePhone:
+              description: Optional. Filter by parent home phone (max 20 characters)
+              type: string
+              example: 184 493 0526
+            parentCellPhone:
+              description: Optional. Filter by parent cell phone (max 20 characters)
+              type: string
+              example: 184 493 0526
+            petName:
+              description: Optional. Filter by pet name (min 2, max 255 characters)
+              type: string
+              example: Leo
+            speciesIds:
+              description: Optional. Filter by species IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            breedIds:
+              description: Optional. Filter by breed IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 362
+            petSex:
+              description: 'Optional. Filter by pet sex (allowed: M, F, U)'
+              type: string
+              example: F
+            altered:
+              description: Optional. Filter by altered status (true/false)
+              type: string
+              example: 'false'
+            created:
+              description: Optional. Filter by creation date range
+              properties:
+                from:
+                  description: Start date (YYYY-MM-DD format)
+                  type: string
+                  example: '2022-04-02'
+                to:
+                  description: End date (YYYY-MM-DD format)
+                  type: string
+                  example: '2023-04-02'
+              type: object
+            birthday:
+              description: Optional. Filter by birthday date range
+              properties:
+                from:
+                  description: Start date (YYYY-MM-DD format)
+                  type: string
+                  example: '2021-01-01'
+                to:
+                  description: End date (YYYY-MM-DD format)
+                  type: string
+                  example: '2021-01-31'
+              type: object
+            vetIds:
+              description: Optional. Filter by vet IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 35
+            parentIds:
+              description: Optional. Filter by parent IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 2547
+            active:
+              description: Optional. Filter by active status (true/false)
+              type: string
+              example: 'true'
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 10
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response with pets data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        description: Current page number
+                        type: integer
+                        format: int64
+                        example: '1'
+                      lastPage:
+                        description: Last available page number
+                        type: integer
+                        format: int64
+                        example: '1'
+                      perPage:
+                        description: Number of records per page
+                        type: integer
+                        format: int64
+                        example: '10'
+                      total:
+                        description: Total number of records across all pages
+                        type: integer
+                        format: int64
+                        example: '1'
+                    type: object
+                  links:
+                    properties:
+                      first:
+                        description: URL to the first page of results
+                        type: string
+                        example: http://localhost/v1/pets?page[number]=1&page[size]=10
+                      last:
+                        description: URL to the last page of results
+                        type: string
+                        example: http://localhost/v1/pets?page[number]=1&page[size]=10
+                      prev:
+                        description: URL to the previous page of results
+                        type: string
+                        example: ''
+                      next:
+                        description: URL to the next page of results
+                        type: string
+                        example: ''
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: pets
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          format: int64
+                          example: '2778'
+                        attributes:
+                          properties:
+                            name:
+                              description: Name of the pet
+                              type: string
+                              example: LEO
+                            breed:
+                              properties:
+                                id:
+                                  description: Unique identifier of the breed
+                                  type: integer
+                                  format: int64
+                                  example: '362'
+                                name:
+                                  description: Name of the breed
+                                  type: string
+                                  example: Afghan Hound
+                              type: object
+                            sex:
+                              description: Sex of the pet (Male, Female, or Unknown)
+                              type: string
+                              example: Female
+                            birthday:
+                              description: Date of birth of the pet in YYYY-MM-DD format
+                              type: string
+                              example: '2021-01-01'
+                            active:
+                              description: Whether the pet profile is currently active
+                              type: boolean
+                              example: true
+                            weight:
+                              description: Weight of the pet in pounds
+                              type: integer
+                              format: int64
+                              example: '25'
+                            vip:
+                              description: Whether the pet is flagged as a VIP client
+                              type: boolean
+                              example: true
+                            medicines:
+                              description: Medication information for the pet
+                              type: string
+                              example: ''
+                            allergies:
+                              description: Known allergy information for the pet
+                              type: string
+                              example: <p>tesztAlbruto</p>
+                            image:
+                              description: URL of the pet's profile photo
+                              type: string
+                              example: https://storage.googleapis.com/gingr-app-user-uploads//2025/02/03/803ebc3b-68c2-4fb0-9eae-d71ba9b8e3a6-test.jpg
+                            petCreatedDate:
+                              description: Date the pet record was created in YYYY-MM-DD format
+                              type: string
+                              example: '2022-04-27'
+                            species:
+                              properties:
+                                id:
+                                  description: Unique identifier of the species
+                                  type: integer
+                                  format: int64
+                                  example: '1'
+                                name:
+                                  description: Name of the species
+                                  type: string
+                                  example: Dog
+                              type: object
+                            altered:
+                              description: Whether the pet has been spayed or neutered
+                              type: boolean
+                              example: false
+                            parent:
+                              properties:
+                                id:
+                                  description: Unique identifier of the pet's owner/parent
+                                  type: integer
+                                  format: int64
+                                  example: '2422'
+                                firstName:
+                                  description: First name of the parent/owner
+                                  type: string
+                                  example: Mounica galla
+                                lastName:
+                                  description: Last name of the parent/owner
+                                  type: string
+                                  example: G
+                                email:
+                                  description: Email address of the parent/owner
+                                  type: string
+                                  example: mgalla@togetherwork.com
+                                cellPhone:
+                                  description: Mobile/cell phone number of the parent/owner
+                                  type: string
+                                  example: 184 493 0526
+                                homePhone:
+                                  description: Home phone number of the parent/owner
+                                  type: string
+                                  example: 184 493 0526
+                                homeLocationId:
+                                  description: ID of the parent's primary home location
+                                  type: integer
+                                  format: int64
+                                  example: '1'
+                              type: object
+                            vet:
+                              properties:
+                                id:
+                                  description: Unique identifier of the pet's veterinarian
+                                  type: integer
+                                  format: int64
+                                  example: '35'
+                                name:
+                                  description: Name of the veterinary practice or veterinarian
+                                  type: string
+                                  example: Animal Health Care Specialists
+                              type: object
+                            pricingRulesApply:
+                              description: Whether custom pricing rules are applied to this pet's bookings
+                              type: boolean
+                              example: true
+                            createdById:
+                              description: ID of the user who created the pet record
+                              type: integer
+                              format: int64
+                              example: '0'
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+    post:
+      tags:
+      - Pets
+      summary: Pets - Create
+      description: Creates a new animal record and associates it with an existing parent. Species and breed must reference valid IDs from the /v1/config/species and /v1/config/breeds endpoints. Weight is in pounds. Birthdate is in Y-m-d format. The pet will be immediately available for booking once created.
+      operationId: v1PetsCreate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - parentId
+              - petName
+              - breedId
+              - speciesId
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: pets
+                    attributes:
+                      properties:
+                        parentId:
+                          description: ID of the parent/owner to associate the pet with
+                          type: integer
+                          format: int64
+                          example: '2544'
+                        petName:
+                          description: Name of the pet
+                          type: string
+                          example: My Pet42
+                        breedId:
+                          description: ID of the pet's breed (must be a valid breed ID)
+                          type: integer
+                          format: int64
+                          example: '241'
+                        speciesId:
+                          description: ID of the pet's species (must be a valid species ID)
+                          type: integer
+                          format: int64
+                          example: '2'
+                        image:
+                          description: URL of the pet's profile photo
+                          type: string
+                          example: https://picsum.photos/200/300
+                        altered:
+                          description: Whether the pet has been spayed or neutered
+                          type: boolean
+                          example: false
+                        vetId:
+                          description: ID of the pet's veterinarian
+                          type: integer
+                          format: int64
+                          example: '34'
+                        sex:
+                          description: Sex of the pet (male, female)
+                          type: string
+                          example: male
+                        birthday:
+                          description: Date of birth of the pet in YYYY-MM-DD format
+                          type: string
+                          example: '2024-01-01'
+                        weight:
+                          description: Weight of the pet in pounds
+                          type: integer
+                          format: int64
+                          example: '10'
+                        vip:
+                          description: Whether the pet should be flagged as a VIP client
+                          type: boolean
+                          example: true
+                        medicines:
+                          description: Medication information for the pet
+                          type: string
+                          example: some medicines
+                        allergies:
+                          description: Known allergy information for the pet
+                          type: string
+                          example: some allergies
+                        pricingRulesApply:
+                          description: Whether custom pricing rules should apply to this pet's bookings
+                          type: boolean
+                          example: true
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pets
+                      id:
+                        description: Unique identifier of the newly created pet record
+                        type: integer
+                        format: int64
+                        example: '2907'
+                      attributes:
+                        properties:
+                          parentId:
+                            description: ID of the parent/owner associated with this pet
+                            type: integer
+                            format: int64
+                            example: '2544'
+                          petName:
+                            description: Name of the pet
+                            type: string
+                            example: My Pet42
+                          breedId:
+                            description: ID of the pet's breed
+                            type: integer
+                            format: int64
+                            example: '241'
+                          speciesId:
+                            description: ID of the pet's species
+                            type: integer
+                            format: int64
+                            example: '2'
+                          image:
+                            description: URL of the pet's profile photo
+                            type: string
+                            example: https://picsum.photos/200/300
+                          altered:
+                            description: Whether the pet has been spayed or neutered
+                            type: boolean
+                            example: false
+                          vetId:
+                            description: ID of the pet's veterinarian
+                            type: integer
+                            format: int64
+                            example: '34'
+                          sex:
+                            description: Sex of the pet (male, female)
+                            type: string
+                            example: male
+                          birthday:
+                            description: Date of birth of the pet in YYYY-MM-DD format
+                            type: string
+                            example: '2024-01-01'
+                          weight:
+                            description: Weight of the pet in pounds
+                            type: string
+                            example: '10'
+                          vip:
+                            description: Whether the pet is flagged as a VIP client
+                            type: boolean
+                            example: true
+                          medicines:
+                            description: Medication information for the pet
+                            type: string
+                            example: some medicines
+                          allergies:
+                            description: Known allergy information for the pet
+                            type: string
+                            example: ''
+                          pricingRulesApply:
+                            description: Whether custom pricing rules are applied to this pet's bookings
+                            type: boolean
+                            example: true
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: Pet not created
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}:
+    get:
+      tags:
+      - Pets
+      summary: Pets - Details
+      description: Returns the complete profile of a single animal by its numeric ID. The response includes the pet's species, breed, weight, birthdate, vaccination status, feeding instructions, medications, behavioral flags, and the linked parent account.
+      operationId: v1PetsDetails
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '3'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pets
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '3'
+                      attributes:
+                        properties:
+                          name:
+                            description: Name of the pet
+                            type: string
+                            example: Abby
+                          sex:
+                            description: Sex of the pet (Male, Female, or Unknown)
+                            type: string
+                            example: Female
+                          weight:
+                            description: Weight of the pet in pounds
+                            type: integer
+                            format: int64
+                            example: '16'
+                          birthday:
+                            description: Date of birth of the pet in YYYY-MM-DD format
+                            type: string
+                            example: '2012-08-27'
+                          breed:
+                            properties:
+                              id:
+                                description: Unique identifier of the breed
+                                type: integer
+                                format: int64
+                                example: '88'
+                              name:
+                                description: Name of the breed
+                                type: string
+                                example: Épagneul Bleu de Picardie
+                              color:
+                                description: Color description for the breed
+                                type: string
+                                example: ''
+                            type: object
+                          feeding:
+                            properties:
+                              notes:
+                                description: General feeding notes for the pet
+                                type: string
+                                example: ''
+                              method:
+                                description: Method used to feed the pet
+                                type: string
+                                example: ''
+                              type:
+                                description: Type of food the pet eats
+                                type: string
+                                example: ''
+                            type: object
+                          feedingSchedules:
+                            description: List of scheduled feeding entries for the pet
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the feeding schedule entry
+                                  type: integer
+                                  format: int64
+                                  example: '1901'
+                                instructions:
+                                  description: Special instructions for this feeding
+                                  type: string
+                                  example: ''
+                                feedingSchedule:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the feeding time slot
+                                      type: integer
+                                      format: int64
+                                      example: '7'
+                                    name:
+                                      description: Name of the feeding time slot (e.g. Breakfast, Lunch)
+                                      type: string
+                                      example: Breakfast
+                                  type: object
+                                feedingUnit:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the feeding unit
+                                      type: integer
+                                      format: int64
+                                      example: '10'
+                                    unit:
+                                      description: Feeding unit quantity
+                                      type: integer
+                                      format: int64
+                                      example: '1'
+                                  type: object
+                                feedingAmount:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the feeding amount
+                                      type: integer
+                                      format: int64
+                                      example: '1'
+                                    amount:
+                                      description: Human-readable feeding amount label
+                                      type: string
+                                      example: Cup
+                                  type: object
+                              type: object
+                          medicationSchedules:
+                            description: List of medication schedules assigned to the pet
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the medication schedule entry
+                                  type: integer
+                                  format: int64
+                                  example: '1511'
+                                startDate:
+                                  description: Date the medication course starts in YYYY-MM-DD format
+                                  type: string
+                                  example: '2022-04-12'
+                                endDate:
+                                  description: Date the medication course ends in YYYY-MM-DD format
+                                  type: string
+                                  example: '2022-11-30'
+                                medicationNotes:
+                                  description: Additional notes or instructions for administering the medication
+                                  type: string
+                                  example: ''
+                                medicationSchedule:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the medication time slot
+                                      type: integer
+                                      format: int64
+                                      example: '21'
+                                    name:
+                                      description: Name of the medication time slot (e.g. AM, PM)
+                                      type: string
+                                      example: AM
+                                  type: object
+                                medicationType:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the medication type
+                                      type: integer
+                                      format: int64
+                                      example: '58'
+                                    code:
+                                      description: Short code for the medication type
+                                      type: string
+                                      example: ''
+                                    name:
+                                      description: Name of the medication type
+                                      type: string
+                                      example: Acid Reducer
+                                  type: object
+                                medicationUnit:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the medication unit
+                                      type: integer
+                                      format: int64
+                                      example: '9'
+                                    unit:
+                                      description: Medication dosage unit label
+                                      type: string
+                                      example: 1-1/2
+                                  type: object
+                                medicationAmount:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the medication amount
+                                      type: integer
+                                      format: int64
+                                      example: '1'
+                                    amount:
+                                      description: Human-readable medication amount label
+                                      type: string
+                                      example: Pill
+                                  type: object
+                              type: object
+                          parentId:
+                            description: ID of the parent/owner associated with this pet
+                            type: integer
+                            format: int64
+                            example: '3'
+                          vetId:
+                            description: ID of the veterinarian associated with this pet
+                            type: integer
+                            format: int64
+                            example: '515'
+                          speciesId:
+                            description: ID of the pet's species
+                            type: integer
+                            format: int64
+                            example: '1'
+                          createdById:
+                            description: ID of the user who created the pet record
+                            type:
+                            - integer
+                            - 'null'
+                            format: int64
+                            example: 123
+                          petCreatedDate:
+                            description: Date the pet record was created in YYYY-MM-DD format
+                            type: string
+                            example: '2025-09-29'
+                          altered:
+                            description: Whether the pet has been spayed or neutered
+                            type: boolean
+                            example: true
+                          temperament:
+                            description: Behavioral temperament notes for the pet
+                            type: string
+                            example: Agressive
+                          vip:
+                            description: Whether the pet is flagged as a VIP client
+                            type: boolean
+                            example: true
+                          active:
+                            description: Whether the pet profile is currently active
+                            type: boolean
+                            example: true
+                          allergies:
+                            description: Known allergy information for the pet
+                            type: string
+                            example: <p>My dog is allergic to grain</p>
+                          image:
+                            description: URL of the pet's profile photo
+                            type: string
+                            example: ''
+                          pricingRulesApply:
+                            description: Whether custom pricing rules are applied to this pet's bookings
+                            type: boolean
+                            example: true
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '404':
+          description: Pet not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        status:
+                          type: string
+                          example: '404'
+                        title:
+                          type: string
+                          example: Pet not found
+                      type: object
+                type: object
+      security:
+      - XApiKey: []
+    put:
+      tags:
+      - Pets
+      summary: Pets - Update
+      description: Updates an existing animal's profile data. All fields are optional — only include the fields you want to change. Species and breed IDs must reference valid, active records. Changes are applied immediately and will be reflected on the next booking for the animal.
+      operationId: V1PetsUpdate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '1'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required: []
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: pets
+                    id:
+                      description: ID of the pet to update
+                      type: integer
+                      format: int64
+                      example: '1'
+                    attributes:
+                      properties:
+                        petName:
+                          description: Pet name (min 3 characters)
+                          type: string
+                          example: newest
+                        breedId:
+                          description: Optional. Breed ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '2'
+                        speciesId:
+                          description: Optional. Species ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '1'
+                        sex:
+                          description: 'Optional. Pet sex (allowed: Male, Female)'
+                          type: string
+                          enum:
+                          - Male
+                          - Female
+                          example: Male
+                        altered:
+                          description: Optional. Whether pet is altered (true/false)
+                          type: boolean
+                          example: true
+                        birthday:
+                          description: Optional. Pet birthday (YYYY-MM-DD format, before or equal to today)
+                          type: string
+                          example: '2024-07-21'
+                        weight:
+                          description: Optional. Pet weight (integer value)
+                          type: integer
+                          format: int64
+                          example: '43'
+                        vip:
+                          description: Optional. VIP status (true/false)
+                          type: boolean
+                          example: false
+                        active:
+                          description: Optional. Set to true to deactivate the pet (value is inverted internally — sending true marks the pet as inactive). Send false to mark the pet as active.
+                          type: boolean
+                          example: true
+                        medicines:
+                          description: Optional. Pet medicines information
+                          type: string
+                          example: some med
+                        allergies:
+                          description: Optional. Pet allergies information
+                          type: string
+                          example: some allergies
+                        image:
+                          description: Optional. Pet image URL
+                          type: string
+                          example: something.com
+                        pricingRulesApply:
+                          description: Optional. Whether pricing rules apply (true/false)
+                          type: boolean
+                          example: false
+                        vetId:
+                          description: Optional. Vet ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '1'
+                        petNotes:
+                          description: Optional. General notes about the pet
+                          type: string
+                          example: Pet is very friendly
+                        groomingNotes:
+                          description: Optional. Grooming-specific notes for the pet
+                          type: string
+                          example: Use hypoallergenic shampoo
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pets
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '1'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Pet is successfully saved
+                    type: object
+                type: object
+        '404':
+          description: Pet not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        status:
+                          type: string
+                          example: '404'
+                        title:
+                          type: string
+                          example: Pet not found
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+    delete:
+      tags:
+      - Pets
+      summary: Pets - Delete
+      description: Permanently deletes a pet profile by its ID. This action removes the pet from the system and disassociates it from its owner. Use with caution — deletion is irreversible. Ensure there are no active or upcoming bookings tied to the pet before calling this endpoint. Returns 404 if the pet does not exist.
+      operationId: v1PetsDelete
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '123'
+      responses:
+        '200':
+          description: Pet deleted successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: pets
+                      id:
+                        type: integer
+                        format: int64
+                        example: '123'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        type: string
+                        example: Pet successfully deleted.
+                    type: object
+                type: object
+        '404':
+          description: Pet not found
+        '409':
+          description: Pet has open reservations
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 500
+                  title: Internal Server Error
+                  detail: Failed to delete Pet. Please try again.
+      security:
+      - XApiKey: []
+  /v1/pets/merge:
+    post:
+      tags:
+      - Pets
+      summary: Pets - Merge
+      description: Merge two pets belonging to the same parent. All related records from the old pet will be transferred to the new pet, and the old pet will be deleted.
+      operationId: v1PetsMerge
+      parameters:
+      - name: subdomain
+        in: header
+        description: Subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Accept header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - data
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  required:
+                  - type
+                  - attributes
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: pets
+                    attributes:
+                      required:
+                      - oldId
+                      - newId
+                      properties:
+                        oldId:
+                          description: Pet ID to be merged (should be valid pet ID)
+                          type: integer
+                          example: 2384
+                        newId:
+                          description: Target pet ID (should be valid pet ID)
+                          type: integer
+                          example: 1371
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Pets merged successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pets
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Pets merged successfully
+                    type: object
+                type: object
+        '404':
+          description: One or both pets not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        status:
+                          type: string
+                          example: '404'
+                        title:
+                          type: string
+                          example: One or both pets not found.
+                      type: object
+                type: object
+        '422':
+          description: Validation error or business rule violation — e.g. pets must have the same parent to merge, or old and new pet IDs cannot be the same.
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        status:
+                          type: string
+                          example: '422'
+                        title:
+                          type: string
+                          example: Pets must have the same parent to merge.
+                      type: object
+                type: object
+        '500':
+          description: Internal server error during merge operation
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        status:
+                          type: string
+                          example: '500'
+                        title:
+                          type: string
+                          example: Pets merge failed
+                      type: object
+                type: object
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: Pets merge failed
+      security:
+      - XApiKey: []
+  /v1/pets/last-service-duration:
+    get:
+      tags:
+      - Pets
+      summary: Pet Service Type - Last Duration
+      description: Returns the duration used for the most recent booking of a specific service type for a given pet. Useful for pre-populating appointment duration in a booking form based on what was used last time.
+      operationId: PetsServiceTypesLastDuration
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: true
+        schema:
+          required:
+          - petId
+          - serviceId
+          properties:
+            petId:
+              description: ID of the pet to look up the last service duration for
+              type: integer
+              format: int64
+              example: '54'
+            serviceId:
+              description: ID of the service type to look up the last duration for
+              type: integer
+              format: int64
+              example: '429'
+          type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: service-types
+                      id:
+                        description: Unique identifier of the service type
+                        type: integer
+                        format: int64
+                        example: '429'
+                      attributes:
+                        properties:
+                          duration:
+                            description: Duration of the last service in the unit specified by durationUnit
+                            type: integer
+                            format: int64
+                            example: '11'
+                          durationUnit:
+                            description: Unit of the duration value (e.g. minutes, hours)
+                            type: string
+                            example: minutes
+                          serviceDate:
+                            description: ISO 8601 datetime of the last service, null if no previous service exists
+                            type:
+                            - string
+                            - 'null'
+                            example: '2025-10-30T10:45:00.000000Z'
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets/last-service-price:
+    get:
+      tags:
+      - Pets
+      summary: Pet Service - Last Price
+      description: Returns the price charged for the last completed service of a specific type for a pet. If auto-charge is disabled or no previous service exists, returns the default service rate.
+      operationId: PetsLastServicePrice
+      parameters:
+      - name: subdomain
+        in: header
+        description: Client subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Response content type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: true
+        schema:
+          required:
+          - petId
+          - serviceId
+          properties:
+            petId:
+              description: ID of the pet to look up the last service price for
+              type: integer
+              format: int64
+              example: '54'
+            serviceId:
+              description: ID of the service type to look up the last price for
+              type: integer
+              format: int64
+              example: '429'
+          type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: services
+                      id:
+                        description: Unique identifier of the service type
+                        type: integer
+                        format: int64
+                        example: '429'
+                      attributes:
+                        properties:
+                          price:
+                            description: Price charged for the last service of this type for the pet
+                            type: number
+                            format: float
+                            example: '25.50'
+                          currency:
+                            description: Currency code of the price (e.g. USD)
+                            type: string
+                            example: USD
+                          date:
+                            description: ISO 8601 datetime of the last service, null if no previous service exists
+                            type: string
+                            example: '2025-10-30T10:45:00.000000Z'
+                        type: object
+                    type: object
+                type: object
+        '404':
+          description: Pet or service not found
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/feeding:
+    get:
+      tags:
+      - Pets
+      summary: Pets Feeding - Details
+      description: Returns the current feeding schedule for a specific pet, including feeding type, method, amount, unit, and per-meal instructions. Use this to display a pet's dietary requirements to staff before or during a stay, or to pre-populate a feeding form when creating an update.
+      operationId: v1PetsFeedingDetails
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2899'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pets
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '2899'
+                      attributes:
+                        properties:
+                          feedingNotes:
+                            description: General feeding notes for the pet
+                            type: string
+                            example: Feeding Notes
+                          feedingMethod:
+                            properties:
+                              id:
+                                description: Unique identifier of the feeding method
+                                type: integer
+                                format: int64
+                                example: '2'
+                              value:
+                                description: Label describing how the pet is fed
+                                type: string
+                                example: Feed with family
+                            type: object
+                          feedingType:
+                            properties:
+                              id:
+                                description: Unique identifier of the feeding type
+                                type: integer
+                                format: int64
+                                example: '5'
+                              code:
+                                description: Short code for the feeding type
+                                type: string
+                                example: OP
+                              name:
+                                description: Name of the feeding type
+                                type: string
+                                example: Owner Provided
+                            type: object
+                          schedules:
+                            description: List of scheduled feeding entries for the pet
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the feeding schedule entry
+                                  type: integer
+                                  format: int64
+                                  example: '3036'
+                                instructions:
+                                  description: Special instructions for this feeding
+                                  type: string
+                                  example: sdef
+                                feedingSchedule:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the feeding time slot
+                                      type: integer
+                                      format: int64
+                                      example: '15'
+                                    name:
+                                      description: Name of the feeding time slot
+                                      type: string
+                                      example: AM Potty Break
+                                  type: object
+                                feedingUnit:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the feeding unit
+                                      type: integer
+                                      format: int64
+                                      example: '1'
+                                    unit:
+                                      description: Feeding unit label (e.g. Cup, Scoop)
+                                      type: string
+                                      example: Cup
+                                  type: object
+                                feedingAmount:
+                                  properties:
+                                    id:
+                                      description: Unique identifier of the feeding amount
+                                      type: integer
+                                      format: int64
+                                      example: '27'
+                                    amount:
+                                      description: Human-readable feeding amount label
+                                      type: string
+                                      example: '*See Notes*'
+                                  type: object
+                              type: object
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+    post:
+      tags:
+      - Pets
+      summary: Pet Feeding - Create
+      description: Creates a new feeding schedule for a specific pet. Requires at least one schedule entry specifying the feeding time and amount. Feeding type, method, unit, and per-meal instructions are optional. Use the Medication Amounts and Feeding config endpoints to retrieve valid IDs for dropdowns before submitting.
+      operationId: v1PetsFeedingCreate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2899'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      description: JSON:API specification version in use
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: feeding
+                    attributes:
+                      properties:
+                        feedingNotes:
+                          description: Optional. Feeding notes
+                          type: string
+                          example: Free Feed
+                        feedingMethodId:
+                          description: Optional. Feeding method ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '7'
+                        feedingTypeId:
+                          description: Optional. Feeding type ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '6'
+                        schedules:
+                          description: 'Feeding schedules (min: 1)'
+                          type: array
+                          items:
+                            required:
+                            - feedingScheduleId
+                            properties:
+                              feedingScheduleId:
+                                description: Required. Feeding schedule ID (should be valid ID)
+                                type: integer
+                                format: int64
+                                example: '1'
+                              feedingUnitId:
+                                description: Optional. Feeding unit ID (should be valid ID)
+                                type: integer
+                                format: int64
+                                example: '1'
+                              feedingAmountId:
+                                description: Optional. Feeding amount ID (should be valid ID)
+                                type: integer
+                                format: int64
+                                example: '5'
+                              instructions:
+                                description: Optional. Feeding instructions
+                                type: string
+                                example: Feed slowly
+                            type: object
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Feeding saved successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pet-feeding
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '1'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Feeding saved successfully
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 404
+                  title: Not Found
+                  detail: Pet not found
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/feeding/{feedingId}:
+    put:
+      tags:
+      - Pets
+      summary: Pet Feeding - Update
+      description: Updates an existing feeding schedule entry for a specific pet. Only the fields provided are changed — omitted fields retain their current values. Use this to adjust feeding instructions, amounts, or units for a pet during or before a stay. Both the pet ID and feeding ID must be valid.
+      operationId: v1PetsFeedingUpdate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2899'
+      - name: feedingId
+        in: path
+        description: Feeding ID (valid Feeding ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '3036'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      description: JSON:API specification version in use
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: feeding
+                    id:
+                      description: Unique resource identifier
+                      type: integer
+                      format: int64
+                      example: '3036'
+                    attributes:
+                      properties:
+                        instructions:
+                          description: Optional. Feeding instructions
+                          type: string
+                          example: Free Feed
+                        feedingAmountId:
+                          description: Optional. Feeding amount ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '26'
+                        feedingUnitId:
+                          description: Optional. Feeding unit ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '2'
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Feeding schedule updated successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: feeding
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '3036'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Feeding schedule updated successfully
+                    type: object
+                type: object
+        '404':
+          description: Pet or feeding schedule not found
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+    delete:
+      tags:
+      - Pets
+      summary: Pets Feeding - Delete
+      description: Removes a specific feeding schedule entry from a pet's profile. Use this when a feeding record was created in error or is no longer applicable. The pet ID and feeding ID are both required. Returns 404 if either the pet or the feeding record does not exist.
+      operationId: V1PetsFeedinDelete
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: petId
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '10'
+      - name: feedingId
+        in: path
+        description: feedingId
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version in use
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: feeding
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '42'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Feeding type deleted successfully
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 404
+                  title: Not Found
+                  detail: Pet Feeding type not found
+      security:
+      - XApiKey: []
+  /v1/pets/immunization/expired:
+    get:
+      tags:
+      - Pets
+      summary: Pet Immunizations - List Expired
+      description: Returns a paginated list of pets with expired or expiring immunizations based on booking dates and filters
+      operationId: PetsImmunizationExpiredList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters for expired immunizations
+        required: true
+        schema:
+          required:
+          - locationIds
+          - dateRanges
+          properties:
+            locationIds:
+              description: Location IDs (required, at least one)
+              type: array
+              items:
+                type: integer
+              example:
+              - 1
+            speciesIds:
+              description: Optional. Filter by species IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 1445
+              - 156
+              - 1
+            bookingTypeIds:
+              description: Optional. Filter by booking type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 1
+              - 2
+              - 3
+            parentIds:
+              description: Optional. Filter by parent IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 1
+            petIds:
+              description: Optional. Filter by pet IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 1
+              - 2
+            expiresWithin:
+              description: 'Optional. Number of days within which immunizations expire (minimum: 0)'
+              type: integer
+              example: 10
+            required:
+              description: Optional. Filter by required immunizations only (true/false)
+              type: boolean
+              example: true
+            dateRanges:
+              description: Date range filters (required, at least one date range must be provided)
+              properties:
+                bookingStart:
+                  description: Optional. Booking start date range (both start and end required if provided)
+                  properties:
+                    start:
+                      description: Start date (YYYY-MM-DD format)
+                      type: string
+                      example: '2020-01-01'
+                    end:
+                      description: End date (YYYY-MM-DD format, must be after or equal to start)
+                      type: string
+                      example: '2025-06-17'
+                  type: object
+                bookingEnd:
+                  description: Optional. Booking end date range (both start and end required if provided)
+                  properties:
+                    start:
+                      description: Start date (YYYY-MM-DD format)
+                      type: string
+                      example: '2025-06-17'
+                    end:
+                      description: End date (YYYY-MM-DD format, must be after or equal to start)
+                      type: string
+                      example: '2025-12-31'
+                  type: object
+              type: object
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 10
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response with expired immunization data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        type: integer
+                        example: 1
+                      lastPage:
+                        type: integer
+                        example: 515
+                      perPage:
+                        type: integer
+                        example: 10
+                      total:
+                        type: integer
+                        example: 5142
+                    type: object
+                  links:
+                    properties:
+                      first:
+                        type: string
+                        example: http://localhost/v1/pets/immunization/expired?page[number]=1&page[size]=10
+                      last:
+                        type: string
+                        example: http://localhost/v1/pets/immunization/expired?page[number]=515&page[size]=10
+                      prev:
+                        type:
+                        - string
+                        - 'null'
+                        example: null
+                      next:
+                        type: string
+                        example: http://localhost/v1/pets/immunization/expired?page[number]=2&page[size]=10
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        bookingId:
+                          type: integer
+                          example: 2
+                        bookingTypeId:
+                          type: integer
+                          example: 1
+                        bookingStartDate:
+                          type: string
+                          example: '2014-04-18T09:00:00Z'
+                        bookingEndDate:
+                          type: string
+                          example: '2014-04-18T21:00:00Z'
+                        locationId:
+                          type: integer
+                          example: 1
+                        parentId:
+                          type: integer
+                          example: 209
+                        petId:
+                          type: integer
+                          example: 712
+                        vetId:
+                          type: integer
+                          example: 35
+                        immunizations:
+                          type: array
+                          items:
+                            properties:
+                              id:
+                                type: integer
+                                example: 787
+                              type:
+                                type: string
+                                example: Rabies
+                              expirationDate:
+                                type: string
+                                example: '2020-08-26T02:00:00Z'
+                              lastUpdatedDate:
+                                type: string
+                                example: '2017-12-24T12:42:36Z'
+                              notes:
+                                type: string
+                                example: ''
+                            type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/medications:
+    get:
+      tags:
+      - Pets
+      summary: Pets Medications - Details
+      description: Returns the list of active medication schedules for a specific pet, including medication type, name, dosage amount, unit, schedule frequency, and administration notes. Use this to display a pet's current medication requirements to staff during a stay, or to pre-populate a medication form before creating an update.
+      operationId: v1PetsMedicationDetails
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2899'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: pet-medications
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '2899'
+                      attributes:
+                        properties:
+                          medicationNotes:
+                            type: string
+                            example: test medication
+                          schedules:
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                  example: '1535'
+                                startDate:
+                                  type: string
+                                  example: '2025-09-02'
+                                endDate:
+                                  type: string
+                                  example: '2025-09-12'
+                                medicationInstructions:
+                                  type: string
+                                  example: asdad
+                                medicationSchedule:
+                                  properties:
+                                    id:
+                                      type: integer
+                                      format: int64
+                                      example: '18'
+                                    name:
+                                      type: string
+                                      example: Lunch
+                                  type: object
+                                medicationType:
+                                  properties:
+                                    id:
+                                      type: integer
+                                      format: int64
+                                      example: '58'
+                                    code:
+                                      type: string
+                                      example: ''
+                                    name:
+                                      type: string
+                                      example: Acid Reducer
+                                  type: object
+                                medicationUnit:
+                                  properties:
+                                    id:
+                                      type: integer
+                                      format: int64
+                                      example: '5'
+                                    unit:
+                                      type: string
+                                      example: '1'
+                                  type: object
+                                medicationAmount:
+                                  properties:
+                                    id:
+                                      type: integer
+                                      format: int64
+                                      example: '5'
+                                    amount:
+                                      type: string
+                                      example: Scoop
+                                  type: object
+                              type: object
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '404':
+          description: Pet not found
+      security:
+      - XApiKey: []
+    post:
+      tags:
+      - Pets
+      summary: Medications - Create
+      description: Creates a new medication schedule for a specific pet. Requires scheduleId, startDate, and endDate. typeId is optional (nullable). endDate must be greater than or equal to startDate. Use the Medication Types, Medication Amounts, Medication Schedules, and Medication Units config endpoints to retrieve valid IDs before submitting. Returns 404 if the pet does not exist.
+      operationId: v1PetsMedicationsCreate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '1'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - scheduleId
+              - startDate
+              - endDate
+              properties:
+                jsonapi:
+                  properties:
+                    version:
+                      description: JSON:API specification version
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: medications
+                    attributes:
+                      properties:
+                        scheduleId:
+                          description: Required. Medication schedule ID (must be a valid schedule ID)
+                          type: integer
+                          format: int64
+                          example: '1'
+                        startDate:
+                          description: Required. Date the medication schedule begins (YYYY-MM-DD format)
+                          type: string
+                          example: '2024-07-15'
+                        endDate:
+                          description: Required. Date the medication schedule ends (YYYY-MM-DD format). Must be greater than or equal to startDate.
+                          type: string
+                          example: '2024-07-16'
+                        typeId:
+                          description: Medication type ID (must be a valid medication type ID)
+                          type: integer
+                          format: int64
+                          example: '4'
+                        notes:
+                          description: Administration instructions or notes for staff (max 255 characters)
+                          type: string
+                          example: somenote
+                        amountId:
+                          description: Medication amount ID specifying dosage quantity (must be a valid amount ID)
+                          type: integer
+                          format: int64
+                          example: '4'
+                        unitId:
+                          description: Medication unit ID specifying the dosage unit (must be a valid unit ID)
+                          type: integer
+                          format: int64
+                          example: '4'
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: medications
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '1539'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Medication saved successfully
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/medications/{medicationId}:
+    put:
+      tags:
+      - Pets
+      summary: Pet Medications - Update
+      description: Updates an existing medication schedule for a specific pet. All fields are optional — only the attributes provided will be changed. Use this to adjust dosage, frequency, notes, or dates for a medication that is already on file. Returns 404 if the pet or medication schedule does not exist.
+      operationId: PetsMedicationsUpdate
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2901'
+      - name: medicationId
+        in: path
+        description: Medication ID (valid Medication ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '1537'
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required: []
+              properties:
+                data:
+                  properties:
+                    type:
+                      type: string
+                      example: medications
+                    id:
+                      type: integer
+                      format: int64
+                      example: '1537'
+                    attributes:
+                      properties:
+                        scheduleId:
+                          description: Optional. Medication schedule ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '18'
+                        startDate:
+                          description: Optional. Start date (YYYY-MM-DD format)
+                          type: string
+                          example: '2027-07-15'
+                        endDate:
+                          description: Optional. End date (YYYY-MM-DD format)
+                          type: string
+                          example: '2027-07-16'
+                        typeId:
+                          description: Optional. Medication type ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '3'
+                        notes:
+                          description: Optional. Medication notes (max 255 characters)
+                          type: string
+                          example: somenote test updated
+                        amountId:
+                          description: Optional. Medication amount ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '4'
+                        unitId:
+                          description: Optional. Medication unit ID (should be valid ID)
+                          type: integer
+                          format: int64
+                          example: '4'
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with medication data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: medications
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '1537'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Medication saved successfully
+                    type: object
+                type: object
+        '404':
+          description: Pet or medication not found
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates whether the request succeeded
+                    type: boolean
+                    example: false
+                  error:
+                    description: Indicates whether an error occurred
+                    type: boolean
+                    example: true
+                  message:
+                    description: Human-readable error message
+                    type: string
+                    example: Pet not found
+                type: object
+        '422':
+          description: Validation error - invalid parameters or page limit exceeded
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates whether the request succeeded
+                    type: boolean
+                    example: false
+                  error:
+                    description: Indicates whether an error occurred
+                    type: boolean
+                    example: true
+                  message:
+                    description: Human-readable validation error message
+                    type: string
+                    example: The scheduleId field must be an integer.
+                type: object
+      security:
+      - XApiKey: []
+    delete:
+      tags:
+      - Pets
+      summary: Pet Medication Schedule - Delete
+      description: Soft deletes a medication schedule for a specific pet by setting is_deleted flag to true
+      operationId: PetsMedicationsDelete
+      parameters:
+      - name: subdomain
+        in: header
+        description: Client subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Response content type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (must be valid)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2899'
+      - name: medicationId
+        in: path
+        description: Medication schedule ID (must be valid)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '901'
+      responses:
+        '200':
+          description: Medication schedule successfully deleted
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: medications
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '901'
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        description: Human-readable status message
+                        type: string
+                        example: Medication schedule successfully deleted.
+                    type: object
+                type: object
+        '404':
+          description: 'Medication not found for the given pet (medication exists but does not belong to this pet). Note: an invalid petId or medicationId (non-existent ID) returns 422.'
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        status:
+                          type: string
+                          example: '404'
+                        title:
+                          type: string
+                          example: Invalid pet ID or medication ID given.
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: Medication schedule is already deleted.
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/report-cards:
+    get:
+      tags:
+      - Pets
+      summary: Pets Report Cards - List
+      description: Returns a list of report cards for a specific pet, scoped to a required location. Report cards are staff-submitted evaluations completed during or after a pet's stay — they may include behavior ratings, activity notes, feeding observations, and attached photos or videos. Use this to display a pet's care history in a parent portal or to pull records for a specific visit.
+      operationId: PetsReportCardsList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '2901'
+      - name: filter[locationId]
+        in: query
+        description: Filter report cards by location ID (required)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 25
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        description: Current page number
+                        type: integer
+                        format: int64
+                        example: '1'
+                      lastPage:
+                        description: Last available page number
+                        type: integer
+                        format: int64
+                        example: '1'
+                      perPage:
+                        description: Number of items per page
+                        type: integer
+                        format: int64
+                        example: '10'
+                      total:
+                        description: Total number of matching records
+                        type: integer
+                        format: int64
+                        example: '1'
+                    type: object
+                  links:
+                    properties:
+                      first:
+                        description: URL to first page
+                        type: string
+                        example: http://localhost/v1/pets/2901/report-cards?page[number]=1&page[size]=10
+                      last:
+                        description: URL to last page
+                        type: string
+                        example: http://localhost/v1/pets/2901/report-cards?page[number]=1&page[size]=10
+                      prev:
+                        description: URL to previous page (empty if on first page)
+                        type: string
+                        example: ''
+                      next:
+                        description: URL to next page (empty if on last page)
+                        type: string
+                        example: ''
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: report-cards
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          format: int64
+                          example: '7047'
+                        attributes:
+                          properties:
+                            locationId:
+                              description: ID of the location where this report card was created
+                              type: integer
+                              format: int64
+                              example: '1'
+                            locationName:
+                              description: Display name of the location
+                              type: string
+                              example: Happy Wags - Boulder
+                            bookingTypeId:
+                              description: ID of the booking type associated with this report card
+                              type: integer
+                              format: int64
+                              example: '31256'
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '404':
+          description: Pet not found
+      security:
+      - XApiKey: []
+  /v1/pets/{petId}/report-cards/{reportCardId}:
+    get:
+      tags:
+      - Pets
+      summary: Report Cards - Details
+      description: Retrieve report card details for a specific pet
+      operationId: ReportCardDetails
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: petId
+        in: path
+        description: Pet ID (valid Pet ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 2901
+      - name: reportCardId
+        in: path
+        description: Report Card ID (valid Report Card ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 7048
+      - name: filter[returnMedia]
+        in: query
+        description: Optional. Include media files in response (true/false)
+        required: false
+        schema:
+          type: boolean
+          example: true
+      responses:
+        '200':
+          description: Successful response with report card details
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: report-cards
+                      id:
+                        type: integer
+                        format: int64
+                        example: 7048
+                      attributes:
+                        properties:
+                          pet:
+                            properties:
+                              id:
+                                type: integer
+                                format: int64
+                                example: 2901
+                              name:
+                                type: string
+                                example: Raja
+                            type:
+                            - object
+                            - 'null'
+                          location:
+                            properties:
+                              id:
+                                type: integer
+                                format: int64
+                                example: 1
+                              name:
+                                type: string
+                                example: Happy Wags - Boulder
+                            type:
+                            - object
+                            - 'null'
+                          fields:
+                            type: array
+                            items:
+                              properties:
+                                type:
+                                  type: string
+                                  example: dropdown
+                                name:
+                                  type: string
+                                  example: Behavior
+                                value:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: Good
+                              type: object
+                          friends:
+                            type: array
+                            items:
+                              properties:
+                                petId:
+                                  type: integer
+                                  format: int64
+                                  example: 3012
+                                petName:
+                                  type: string
+                                  example: Buddy
+                              type: object
+                          media:
+                            type: array
+                            items:
+                              type: string
+                              example: https://storage.example.com/2025/12/02/photo.jpg
+                          updatedBy:
+                            type:
+                            - integer
+                            - 'null'
+                            format: int64
+                            example: 1841
+                          updatedAt:
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                            example: '2025-12-03T11:36:27Z'
+                        type: object
+                    type: object
+                type: object
+        '404':
+          description: Pet not found or Report card not found
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/pets/report-card-media:
+    get:
+      tags:
+      - Pets
+      summary: Report Card Media - List
+      description: Returns a paginated list of media files (photos and videos) attached to report cards across the organization. Filter by reportCardId, bookingId, petId, or parentId to narrow results. Use this to retrieve all media associated with a specific stay, or to build a media gallery for a parent's account. Media URLs are returned directly and can be displayed or downloaded by the client.
+      operationId: ReportCardMediaList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filters to narrow down report card media results. At least one filter parameter is required.
+        required: true
+        schema:
+          properties:
+            reportCardId:
+              description: Optional. Filter by report card ID (should be valid ID)
+              type: integer
+              example: 7048
+            bookingId:
+              description: Optional. Filter by booking ID (should be valid ID)
+              type: integer
+              example: 31258
+            petId:
+              description: Optional. Filter by pet ID (should be valid ID)
+              type: integer
+              example: 2901
+            parentId:
+              description: Optional. Filter by parent ID (should be valid ID)
+              type: integer
+              example: 2547
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 10
+          type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        description: JSON:API specification version
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        description: Current page number
+                        type: integer
+                        format: int64
+                        example: '1'
+                      lastPage:
+                        description: Last available page number
+                        type: integer
+                        format: int64
+                        example: '1'
+                      perPage:
+                        description: Number of items per page
+                        type: integer
+                        format: int64
+                        example: '10'
+                      total:
+                        description: Total number of matching records
+                        type: integer
+                        format: int64
+                        example: '3'
+                    type: object
+                  links:
+                    properties:
+                      first:
+                        description: URL to first page
+                        type: string
+                        example: http://localhost/v1/pets/report-card-media?page[number]=1&page[size]=10
+                      last:
+                        description: URL to last page
+                        type: string
+                        example: http://localhost/v1/pets/report-card-media?page[number]=1&page[size]=10
+                      prev:
+                        description: URL to previous page (empty if on first page)
+                        type: string
+                        example: ''
+                      next:
+                        description: URL to next page (empty if on last page)
+                        type: string
+                        example: ''
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: report-cards-media
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          format: int64
+                          example: '5061'
+                        attributes:
+                          properties:
+                            url:
+                              description: Public URL to the media file (photo or video)
+                              type: string
+                              example: https://storage.googleapis.com/gingr-app-user-uploads//2025/12/02/bf7256a3-700f-407e-93a0-632689eb8df5-affenpinscher.jpg
+                            reportCardId:
+                              description: ID of the report card this media is attached to
+                              type: integer
+                              format: int64
+                              example: '7048'
+                            bookingId:
+                              description: ID of the booking associated with this media
+                              type: integer
+                              format: int64
+                              example: '31258'
+                            petId:
+                              description: ID of the pet featured in this media
+                              type: integer
+                              format: int64
+                              example: '2901'
+                            parentId:
+                              description: ID of the pet owner (parent) associated with this media
+                              type: integer
+                              format: int64
+                              example: '2547'
+                            locationId:
+                              description: ID of the location where the media was captured
+                              type: integer
+                              format: int64
+                              example: '1'
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
 components:
-  schemas:
-    PetListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/PetResponse'
-    PetAttributes:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Abby
-        sex:
-          type: string
-          example: Female
-        weight:
-          type: integer
-        birthday:
-          type: string
-          format: date
-        parentId:
-          type: integer
-        breed:
-          type: object
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
-            color:
-              type: string
-        feeding:
-          type: object
-          properties:
-            notes:
-              type: string
-            method:
-              type: string
-            type:
-              type: string
-    PetCreateRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: pets
-            attributes:
-              $ref: '#/components/schemas/PetAttributes'
-    PetResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: pets
-            id:
-              type: integer
-            attributes:
-              $ref: '#/components/schemas/PetAttributes'
-  parameters:
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
   responses:
-    NotFound:
-      description: The requested resource was not found.
-    ValidationError:
-      description: The request payload failed validation.
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
   securitySchemes:
-    ApiKeyAuth:
+    XApiKey:
       type: apiKey
-      in: header
+      description: Handle an incoming request.
       name: X-Api-Key
-      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'
+      in: header

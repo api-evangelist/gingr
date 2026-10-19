@@ -1,0 +1,238 @@
+openapi: 3.2.0
+info:
+  title: Gingr Card On File API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
+tags:
+- name: Card On File
+  description: 'The **Card On File** group manages saved payment methods for a parent. Gingr stores tokenized card details through its payment gateway integration — raw card numbers are never stored or transmitted through the API.
+
+
+    Use this group to:
+
+
+    - **List** saved cards for a parent.
+
+    - **Set a default** card to use for auto-billing and deposits.
+
+    - **Delete** a card that is no longer needed.
+
+    - **Initiate card capture** flows for parents who need to add a new card.
+
+
+    Cards on file are required for certain features such as automatic deposits, membership auto-billing, and one-click checkout.'
+paths:
+  /v1/card-on-file:
+    post:
+      tags:
+      - Card On File
+      summary: Card On File - Generate Secure URL
+      description: Generate a secure URL for the card-on-file frontend page with encrypted token
+      operationId: cardOnFileGenerateUrl
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Content-Type
+        in: header
+        description: Content type header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              required:
+              - data
+              properties:
+                data:
+                  required:
+                  - type
+                  - attributes
+                  properties:
+                    type:
+                      type: string
+                      example: card-on-file
+                    attributes:
+                      required:
+                      - locationId
+                      - paymentProcessor
+                      properties:
+                        locationId:
+                          description: Location ID
+                          type: integer
+                          example: 1
+                        paymentProcessor:
+                          description: 'Payment processor (allowed: gingrpayments, cardconnect)'
+                          type: string
+                          example: gingrpayments
+                      type: object
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: Successful response with secure URL
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: card-on-file
+                      id:
+                        type: string
+                        example: 69d78856dcb31
+                      attributes:
+                        properties:
+                          secureUrl:
+                            type: string
+                            example: https://api.example.com/card-on-file?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+                          expiresAt:
+                            description: Token expiration timestamp
+                            type: integer
+                            example: 1640995200
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: This payment processor is either inactive or not configured for the selected location.
+      security:
+      - XApiKey: []
+components:
+  responses:
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
+  securitySchemes:
+    XApiKey:
+      type: apiKey
+      description: Handle an incoming request.
+      name: X-Api-Key
+      in: header

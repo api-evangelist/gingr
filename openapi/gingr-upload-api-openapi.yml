@@ -1,0 +1,218 @@
+openapi: 3.2.0
+info:
+  title: Gingr Upload API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
+tags:
+- name: Upload
+  description: 'The **Upload** group provides endpoints for attaching files to parent and pet records. Supported file types include images (profile photos) and documents (vaccination certificates, signed waivers, etc.).
+
+
+    Uploaded files are stored in Gingr''s file storage and associated with the relevant parent or pet record. File size and type restrictions apply — see individual endpoint documentation for limits.'
+paths:
+  /v1/upload/file:
+    post:
+      tags:
+      - Upload
+      summary: File - Upload
+      description: Upload a file to AWS S3, served via CloudFront CDN
+      operationId: FileUpload
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - file
+              properties:
+                file:
+                  description: 'File to upload (max 10MB, allowed types: jpg, jpeg, png, pdf, doc, docx, xlsx, csv, heic, bmp, gif)'
+                  type: string
+                  format: binary
+                context:
+                  description: Optional context identifier for the uploaded file
+                  type: string
+                  example: ''
+                uploaded_by:
+                  description: Optional identifier of the user uploading the file (defaults to current user ID)
+                  type: string
+                  example: '42'
+                feature:
+                  description: Optional feature context for the uploaded file
+                  type: string
+                  example: ''
+                owner_id:
+                  description: Optional owner ID to associate with the uploaded file
+                  type: string
+                  example: ''
+              type: object
+      responses:
+        '200':
+          description: Successful response with file data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: file
+                      attributes:
+                        properties:
+                          path:
+                            description: CloudFront CDN URL of the uploaded file
+                            type: string
+                            example: https://files-dev.assets.gingrapp.com/dev01/2026/05/29/99cdc5b94b90220dc386e2628368e359.jpg
+                        type: object
+                    type: object
+                  meta:
+                    properties:
+                      message:
+                        type: string
+                        example: File saved successfully
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '500':
+          description: Upload failed - server error during file processing
+        '413':
+          description: Payload too large
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 413
+                  title: Content Too Large
+                  detail: File size exceeds server limits. Please upload a smaller file.
+      security:
+      - XApiKey: []
+components:
+  responses:
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
+  securitySchemes:
+    XApiKey:
+      type: apiKey
+      description: Handle an incoming request.
+      name: X-Api-Key
+      in: header

@@ -64,21 +64,6 @@ apis:
     url: https://docs.gingr.io/documentation
   - type: Documentation
     url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
-- aid: gingr:gingr-owners-api
-  name: Gingr Owners API
-  description: Owner/client ("parent") records.
-  humanURL: >-
-    https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
-  baseURL: https://api.gingr.io/v1
-  tags:
-  - Owners
-  properties:
-  - type: OpenAPI
-    url: openapi/gingr-owners-api-openapi.yml
-  - type: Documentation
-    url: https://docs.gingr.io/documentation
-  - type: Documentation
-    url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
 - aid: gingr:gingr-payments-api
   name: Gingr Payments API
   description: Charging and refunding cards on file, invoices, and deposits.
@@ -109,77 +94,289 @@ apis:
     url: https://docs.gingr.io/documentation
   - type: Documentation
     url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
-- aid: gingr:gingr-report-cards-api
-  name: Gingr Report Cards API
-  description: Daily activity report cards generated for a pet's stay.
+- aid: gingr:gingr-booking-type-rates-api
+  name: Gingr Booking Type Rates API
+  description: Booking Type Rates
   humanURL: >-
     https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
   baseURL: https://api.gingr.io/v1
   tags:
-  - Report Cards
+  - Booking Type Rates
   properties:
   - type: OpenAPI
-    url: openapi/gingr-report-cards-api-openapi.yml
+    url: openapi/gingr-booking-type-rates-api-openapi.yml
   - type: Documentation
     url: https://docs.gingr.io/documentation
   - type: Documentation
     url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
-- aid: gingr:gingr-reservations-api
-  name: Gingr Reservations API
-  description: Bookings/reservations for daycare, boarding, training, and grooming.
+- aid: gingr:gingr-bookings-api
+  name: Gingr Bookings API
+  description: >-
+    The **Bookings** group is the core of the Gingr API. A **Booking** (also called a Reservation internally)
+    represents a scheduled service for one or more animals at a specific location and time.
+
+
+    The typical booking lifecycle is:
+
+
+    1. **Validate** — Call the validation endpoints to check availability and confirm there are no conflicts
+    before committing.
+
+    2. **Create** — Submit the booking with the required fields. The response includes the new booking
+    ID.
+
+    3. **Pre-check** — If the organization requires a pre-check, retrieve the pre-check form (`GET /v1/bookings/{id}/precheck-form`)
+    and submit answers (`POST /v1/bookings/{id}/precheck`).
+
+    4. **Accept / Confirm** — Some organizations require staff to manually confirm bookings. Use the accept
+    endpoint when `manualConfirm` is enabled.
+
+    5. **Checkout** — When the service is complete, submit payment via the checkout endpoint.
+
+    6. **Cancel** — If needed, cancel the booking and optionally apply a cancellation fee.
+
+
+    Key concepts:
+
+
+    - **`manualConfirm`** — When this flag is `true` on a booking type, new bookings land in a "pending"
+    state and must be explicitly accepted by staff before they are considered confirmed. If `false`, bookings
+    are auto-confirmed.
+
+    - **Overrides** — The `overrides` object in the create/update requests lets you bypass certain business
+    rule validations (e.g., overbooking a run, scheduling outside business hours). Overrides require elevated
+    API permissions and should be used sparingly.
+
+    - **Services** — A booking can have one or more services attached (e.g., the base boarding service
+    plus grooming add-ons). Services carry their own pricing and scheduling.
+
+    - **Lodging** — For overnight boarding, the booking is assigned to a specific run/kennel. The available
+    lodgings endpoint returns which runs are open for the requested dates.
+
+    - **Pre-check** — A digital check-in form that collects health, feeding, and care instructions for
+    the animal's stay. Whether pre-check is required depends on organization settings.
+
+    - **Standing Bookings** — Recurring bookings on a fixed schedule (e.g., every Monday for daycare).
+    Changes to a standing booking can apply to the single instance or all future occurrences.
   humanURL: >-
     https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
   baseURL: https://api.gingr.io/v1
   tags:
-  - Reservations
+  - Bookings
   properties:
   - type: OpenAPI
-    url: openapi/gingr-reservations-api-openapi.yml
+    url: openapi/gingr-bookings-api-openapi.yml
   - type: Documentation
     url: https://docs.gingr.io/documentation
   - type: Documentation
     url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
-- aid: gingr:gingr-services-api
-  name: Gingr Services API
-  description: Service catalog and facility configuration.
+- aid: gingr:gingr-card-on-file-api
+  name: Gingr Card On File API
+  description: >-
+    The **Card On File** group manages saved payment methods for a parent. Gingr stores tokenized card
+    details through its payment gateway integration — raw card numbers are never stored or transmitted
+    through the API.
+
+
+    Use this group to:
+
+
+    - **List** saved cards for a parent.
+
+    - **Set a default** card to use for auto-billing and deposits.
+
+    - **Delete** a card that is no longer needed.
+
+    - **Initiate card capture** flows for parents who need to add a new card.
+
+
+    Cards on file are required for certain features such as automatic deposits, membership auto-billing,
+    and one-click checkout.
   humanURL: >-
     https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
   baseURL: https://api.gingr.io/v1
   tags:
-  - Services
+  - Card On File
   properties:
   - type: OpenAPI
-    url: openapi/gingr-services-api-openapi.yml
+    url: openapi/gingr-card-on-file-api-openapi.yml
   - type: Documentation
     url: https://docs.gingr.io/documentation
   - type: Documentation
     url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
-- aid: gingr:gingr-vaccinations-api
-  name: Gingr Vaccinations API
-  description: Pet immunization/vaccination records.
+- aid: gingr:gingr-config-api
+  name: Gingr Config API
+  description: >-
+    The **Config** group exposes read and write endpoints for all organization-level configuration data
+    in Gingr. This includes the lookup tables and settings that everything else depends on — species,
+    breeds, booking types, service options, feeding options, immunization types, forms, locations, hours
+    of operation, tax rates, areas, disabled dates, and more.
+
+
+    Typically you will call these endpoints once at startup (or on a periodic refresh) to build local
+    caches that your integration can reference when creating bookings, parents, and pets. Most config
+    data changes infrequently and is safe to cache for hours or even days.
+
+
+    Key things to know:
+
+
+    - **Booking Types** define the kinds of services a location offers (e.g., Boarding, Daycare, Grooming).
+    A booking must reference a valid booking type for the target location.
+
+    - **Service Options** are add-ons that can be attached to a booking (e.g., extra walks, nail trim).
+    Each service option belongs to a booking type.
+
+    - **Forms** are questionnaires associated with bookings or animals. Form answers are collected during
+    the pre-check process.
+
+    - **Areas / Runs** represent physical kennel spaces. Lodging availability and capacity constraints
+    live here.
+
+    - **Tax Rates** define the tax rules applied when invoicing. Whether tax is applied to a booking depends
+    on organization settings.
+
+    - **Disabled Dates** let you know when a location is closed so you can avoid booking on those days.
   humanURL: >-
     https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
   baseURL: https://api.gingr.io/v1
   tags:
-  - Vaccinations
+  - Config
   properties:
   - type: OpenAPI
-    url: openapi/gingr-vaccinations-api-openapi.yml
+    url: openapi/gingr-config-api-openapi.yml
   - type: Documentation
     url: https://docs.gingr.io/documentation
   - type: Documentation
     url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
-- aid: gingr:gingr-waitlist-api
-  name: Gingr Waitlist API
-  description: Managing bookings that are on the facility waitlist.
+- aid: gingr:gingr-group-classes-api
+  name: Gingr Group Classes API
+  description: >-
+    The **Group Classes** group manages enrollment in structured group training and activity sessions.
+    Unlike individual bookings, group classes have a fixed schedule, a capacity limit, and a roster of
+    enrolled animals.
+
+
+    Use this group to list available class sessions, check capacity, enroll an animal, and retrieve class
+    rosters. Pricing for group classes is set at the class-type level in the Config group.
   humanURL: >-
     https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
   baseURL: https://api.gingr.io/v1
   tags:
-  - Waitlist
+  - Group Classes
   properties:
   - type: OpenAPI
-    url: openapi/gingr-waitlist-api-openapi.yml
+    url: openapi/gingr-group-classes-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gingr.io/documentation
+  - type: Documentation
+    url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
+- aid: gingr:gingr-parents-api
+  name: Gingr Parents API
+  description: >-
+    The **Parents** group covers everything related to the pet owner — referred to as a **Parent** in
+    Gingr. A Parent is the primary account holder who owns one or more animals and makes bookings.
+
+
+    Use this group to:
+
+
+    - **Create** new parents during the intake flow (e.g., an online booking portal).
+
+    - **Update** parent profile data such as contact info, address, and custom fields.
+
+    - **Search / list** parents by name, email, phone, and other filters.
+
+    - **Manage memberships** — enroll or cancel a parent's membership plan.
+
+    - **Manage cards on file** — retrieve saved payment methods so you can pre-fill checkout forms.
+
+    - **Handle agreements** — check which digital waivers a parent still needs to sign and mark them as
+    signed.
+
+
+    Important considerations:
+
+
+    - `email` and `cellPhone` are unique per organization. Attempting to create a duplicate will return
+    a `422` validation error.
+
+    - `allowOnlineLogin` controls whether the parent can log in to the Gingr consumer portal. This defaults
+    to `false` for API-created parents unless explicitly set.
+
+    - Custom fields (configured per organization) can be passed in the `customFields` object. Field keys
+    vary by organization — use the Config `/v1/config` endpoint or contact support to get the key names
+    for a specific subdomain.
+  humanURL: >-
+    https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  tags:
+  - Parents
+  properties:
+  - type: OpenAPI
+    url: openapi/gingr-parents-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gingr.io/documentation
+  - type: Documentation
+    url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
+- aid: gingr:gingr-payment-api
+  name: Gingr Payment API
+  description: Payment
+  humanURL: >-
+    https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  tags:
+  - Payment
+  properties:
+  - type: OpenAPI
+    url: openapi/gingr-payment-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gingr.io/documentation
+  - type: Documentation
+    url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
+- aid: gingr:gingr-precheck-api
+  name: Gingr Precheck API
+  description: >-
+    The **Precheck** group handles the digital pre-check-in process for bookings. A pre-check collects
+    animal care instructions — feeding, medications, behavioral notes, and custom form answers — before
+    the animal arrives for its stay.
+
+
+    Whether pre-check is required depends on the organization's settings and the booking type. When required,
+    a booking cannot be fully confirmed until a pre-check has been submitted.
+
+
+    Use this group to retrieve the pre-check form definition for a booking and to submit completed form
+    answers.
+  humanURL: >-
+    https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  tags:
+  - Precheck
+  properties:
+  - type: OpenAPI
+    url: openapi/gingr-precheck-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gingr.io/documentation
+  - type: Documentation
+    url: https://support.gingrapp.com/hc/en-us/sections/26779521691661-Gingr-s-API
+- aid: gingr:gingr-upload-api
+  name: Gingr Upload API
+  description: >-
+    The **Upload** group provides endpoints for attaching files to parent and pet records. Supported file
+    types include images (profile photos) and documents (vaccination certificates, signed waivers, etc.).
+
+
+    Uploaded files are stored in Gingr's file storage and associated with the relevant parent or pet record.
+    File size and type restrictions apply — see individual endpoint documentation for limits.
+  humanURL: >-
+    https://support.gingrapp.com/hc/en-us/articles/25722122517517-Gingr-API-Functions-Reference
+  baseURL: https://api.gingr.io/v1
+  tags:
+  - Upload
+  properties:
+  - type: OpenAPI
+    url: openapi/gingr-upload-api-openapi.yml
   - type: Documentation
     url: https://docs.gingr.io/documentation
   - type: Documentation

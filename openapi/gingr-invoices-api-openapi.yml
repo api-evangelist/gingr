@@ -1,210 +1,992 @@
 openapi: 3.2.0
 info:
-  title: Gingr Partner Invoices API
-  description: Gingr's Partner API for pet-care business management software (dog daycare, boarding, training, and grooming).
-  version: 1.8.0
-  contact:
-    name: Gingr
-    url: https://www.gingrapp.com
-servers:
-- url: https://api.gingr.io
-  description: Gingr Partner API (production)
-security:
-- ApiKeyAuth: []
+  title: Gingr Invoices API
+  description: 'Welcome to the **Gingr API** — a RESTful JSON:API-compliant interface for integrating with Gingr, the leading pet-care business management platform.
+
+
+    ## Authentication
+
+
+    All requests require an API key passed in the `X-Api-Key` header. Keys are scoped to a specific organization and can be generated from the Gingr admin dashboard under **Settings → Integrations → API Keys**.
+
+
+    ## Subdomain Header
+
+
+    Every request must also include a `subdomain` header identifying which Gingr account you are operating on. This value is the subdomain portion of your Gingr URL (e.g., `mykennel` for `mykennel.gingrapp.com`).
+
+
+    ## Response Format
+
+
+    The API follows the JSON:API v1.0 specification. All requests must include:
+
+
+    ```
+
+    Accept: application/vnd.api+json
+
+    ```
+
+
+    POST/PUT/PATCH requests that include a body must also include:
+
+
+    ```
+
+    Content-Type: application/vnd.api+json
+
+    ```
+
+
+    Paginated list responses include a `meta` object with `currentPage`, `lastPage`, `perPage`, and `total`, as well as a `links` object with `first`, `last`, `prev`, and `next` cursor URLs.
+
+
+    ## Error Handling
+
+
+    | HTTP Status | Meaning |
+
+    |-------------|---------|
+
+    | 200 | Success |
+
+    | 201 | Resource created |
+
+    | 400 | Bad request / business logic error |
+
+    | 401 | Unauthorized — invalid or missing API key |
+
+    | 403 | Forbidden — valid key but insufficient permissions |
+
+    | 404 | Resource not found |
+
+    | 422 | Validation error — see `errors` array in response |
+
+    | 500 | Internal server error |
+
+
+    Validation errors (`422`) are returned as a JSON:API `errors` array where each item contains a `title` and a `detail` describing the offending field.
+
+
+    ## Rate Limiting
+
+
+    API requests are subject to rate limiting. Exceeding the limit returns a `429 Too Many Requests` response. Contact Gingr support to discuss higher rate limits for high-volume integrations.'
+  version: 1.9.2
 tags:
 - name: Invoices
-  description: Invoices and charges.
+  description: 'The **Invoices** group provides detailed access to Gingr''s invoicing system. Invoices are generated automatically when a booking is created or when retail items are added to a parent''s account.
+
+
+    Use this group to retrieve invoice line items, apply discounts, add open items, and query payment history. For processing actual payments against an invoice, see the **Payments** group.
+
+
+    Invoice statuses you may encounter:
+
+
+    - **Estimate** — Pre-service invoice that has not yet been finalized.
+
+    - **Open** — Invoice is finalized and awaiting payment.
+
+    - **Paid** — Invoice has been fully settled.
+
+    - **Void** — Invoice has been cancelled.'
 paths:
-  /v1/invoices:
-    get:
-      operationId: v1InvoicesList
-      tags:
-      - Invoices
-      summary: Invoices - List
-      parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - name: filter[parentId]
-        in: query
-        required: false
-        schema:
-          type: integer
-      - name: page[size]
-        in: query
-        required: false
-        schema:
-          type: integer
-          enum:
-          - 10
-          - 25
-          - 50
-          - 100
-      - name: page[number]
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 1
-      responses:
-        '200':
-          description: A page of invoice resources.
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/InvoiceListResponse'
-  /v1/invoices/{invoiceId}:
-    get:
-      operationId: v1InvoiceDetails
-      tags:
-      - Invoices
-      summary: Invoice - Details
-      parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - name: invoiceId
-        in: path
-        required: true
-        schema:
-          type: integer
-      responses:
-        '200':
-          description: The requested invoice resource with line items.
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/InvoiceResponse'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /v1/invoices/charges:
-    get:
-      operationId: v1InvoicesCharges
-      tags:
-      - Invoices
-      summary: Invoices - Charges
-      description: Lists individual charge line items across invoices.
-      parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      responses:
-        '200':
-          description: A list of charge line items.
   /v1/invoices/{invoiceId}/refund-items:
     post:
-      operationId: v1InvoicesRefundItems
       tags:
       - Invoices
       summary: Invoices - Refund Items
+      description: Issues a refund for one or more specific line items on an invoice rather than the entire invoice amount. Provide an array of invoice item IDs to refund selectively. An optional refund reason ID may be provided. Use this when only part of an invoice needs to be reversed — for example, refunding a single service add-on without affecting the base booking charge.
+      operationId: InvoicesRefundItems
       parameters:
-      - $ref: '#/components/parameters/Subdomain'
-      - $ref: '#/components/parameters/Accept'
-      - $ref: '#/components/parameters/ContentType'
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Content-Type
+        in: header
+        description: Content-Type
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
       - name: invoiceId
         in: path
+        description: Invoice ID (valid Invoice ID)
         required: true
         schema:
           type: integer
+          format: int64
+          example: '3536'
       requestBody:
         content:
           application/vnd.api+json:
             schema:
-              type: object
+              required:
+              - data
               properties:
-                data:
-                  type: object
+                jsonapi:
                   properties:
+                    version:
+                      type: string
+                      example: '1.0'
+                  type: object
+                data:
+                  required:
+                  - id
+                  properties:
+                    type:
+                      description: JSON:API resource type identifier
+                      type: string
+                      example: invoice-items
+                    id:
+                      description: Required. Invoice item ID
+                      type: integer
+                      format: int64
+                      example: '8163'
                     attributes:
-                      type: object
+                      required:
+                      - refundAmount
+                      - includeTax
+                      - returnToInventory
                       properties:
-                        itemIds:
-                          type: array
-                          items:
-                            type: integer
+                        refundAmount:
+                          description: Refund amount (valid decimal amount)
+                          type: string
+                          example: '10.50'
+                        includeTax:
+                          description: Include tax in refund (true/false)
+                          type: boolean
+                          example: false
+                        returnToInventory:
+                          description: Return item to inventory (true/false)
+                          type: boolean
+                          example: false
                         refundReasonId:
-                          type: integer
+                          description: Optional. Nullable. Refund reason ID (should be valid ID)
+                          type:
+                          - integer
+                          - 'null'
+                          format: int64
+                          example: '334'
+                      type: object
+                  type: object
+              type: object
       responses:
         '200':
-          description: Refund confirmation for the specified invoice line items.
-components:
-  schemas:
-    InvoiceListResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/InvoiceResponse'
-    InvoiceAttributes:
-      type: object
-      properties:
-        parentId:
-          type: integer
-        bookingId:
-          type: integer
-        total:
-          type: number
-          format: float
-        balance:
-          type: number
-          format: float
-        status:
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: payments
+                      id:
+                        description: Unique identifier of the refund payment record
+                        type: integer
+                        format: int64
+                        example: '334'
+                      attributes:
+                        properties:
+                          timeStamp:
+                            description: Timestamp when the item refund was processed (ISO 8601)
+                            type: boolean
+                            example: false
+                          invoice:
+                            description: Updated invoice summary after item refund
+                            properties:
+                              status:
+                                description: Current status of the invoice after item refund
+                                type: string
+                                example: Open
+                              remainingDue:
+                                description: Remaining balance due on the invoice after item refund
+                                type: string
+                                example: '4.00'
+                            type: object
+                        type: object
+                    type: object
+                type: object
+        '400':
+          description: Refund failed — item already refunded, invalid item ID, or refund amount exceeds available
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request
+                  detail: InvoiceItemId:5 has already been fully refunded
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/invoices:
+    get:
+      tags:
+      - Invoices
+      summary: Invoices - List
+      description: Returns a paginated list of invoices (POS transactions) with optional filtering by parent, location, booking, booking type, retail type, payment method, and date ranges. Use this to display billing history, build reporting views, or find invoices associated with a specific booking or parent account.
+      operationId: v1InvoicesList
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
           type: string
-        createdAt:
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
           type: string
-          format: date-time
-        lineItems:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              description:
-                type: string
-              amount:
-                type: number
-                format: float
-    InvoiceResponse:
-      type: object
-      properties:
-        data:
-          type: object
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: true
+        schema:
+          required:
+          - locationIds
           properties:
-            type:
+            locationIds:
+              description: Required. Filter by location IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            invoiceStatus:
+              description: 'Optional. Filter by invoice status (allowed: Open, Closed, Voided, Estimate, Refunded). Note: "Refunded" is deprecated and will be removed in a future version.'
               type: string
-              example: invoices
-            id:
+              example: Open
+            bookingIds:
+              description: Optional. Filter by booking IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            retailTypeIds:
+              description: Optional. Filter by retail type IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            packagesTypeIds:
+              description: Optional. Filter by package type IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            parentIds:
+              description: Optional. Filter by parent IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            openItemTypeIds:
+              description: Optional. Filter by open item type IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            bookingTypeIds:
+              description: Optional. Filter by booking type IDs
+              type: array
+              items:
+                type: integer
+                format: int64
+              example:
+              - 1
+            paymentMethodId:
+              description: 'Optional. Filter by payment method ID (min: 1)'
               type: integer
-            attributes:
-              $ref: '#/components/schemas/InvoiceAttributes'
-  parameters:
-    Accept:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
-    Subdomain:
-      name: subdomain
-      in: header
-      required: true
-      description: The facility's Gingr account subdomain identifier.
-      schema:
-        type: string
-        example: donny
-    ContentType:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/vnd.api+json
+              format: int64
+              example: '1'
+            bookingStart:
+              description: Optional. Filter by booking start date range (YYYY-MM-DD format)
+              properties:
+                from:
+                  type: string
+                  example: '2020-08-30'
+                to:
+                  type: string
+                  example: '2021-08-30'
+              type: object
+            bookingEnd:
+              description: Optional. Filter by booking end date range (YYYY-MM-DD format)
+              properties:
+                from:
+                  type: string
+                  example: '2020-08-30'
+                to:
+                  type: string
+                  example: '2025-08-30'
+              type: object
+            created:
+              description: Optional. Filter by created date range (YYYY-MM-DD format)
+              properties:
+                from:
+                  type: string
+                  example: '2020-08-30'
+                to:
+                  type: string
+                  example: '2025-08-30'
+              type: object
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 25
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response with invoice data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        type: integer
+                        format: int64
+                        example: '1'
+                      lastPage:
+                        type: integer
+                        format: int64
+                        example: '1194'
+                      perPage:
+                        type: integer
+                        format: int64
+                        example: '10'
+                      total:
+                        type: integer
+                        format: int64
+                        example: '11934'
+                    type: object
+                  links:
+                    properties:
+                      first:
+                        type: string
+                        example: http://localhost/v1/invoices?page[number]=1&page[size]=10
+                      last:
+                        type: string
+                        example: http://localhost/v1/invoices?page[number]=1194&page[size]=10
+                      prev:
+                        type: string
+                        example: ''
+                      next:
+                        type: string
+                        example: http://localhost/v1/invoices?page[number]=2&page[size]=10
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: invoices
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          format: int64
+                          example: '19250'
+                        attributes:
+                          properties:
+                            parentId:
+                              description: ID of the parent (owner) associated with this invoice
+                              type: integer
+                              format: int64
+                              example: '2544'
+                            parentName:
+                              description: Full name of the parent (owner) associated with this invoice
+                              type: string
+                              example: '[Parent Name]'
+                            status:
+                              description: Current status of the invoice (Open, Closed, Voided, Estimate)
+                              type: string
+                              example: Open
+                            total:
+                              description: Total invoice amount as a decimal string
+                              type: string
+                              example: '1.09'
+                            remainingDue:
+                              description: Remaining balance due on the invoice
+                              type: string
+                              example: '310.43'
+                            paymentAmount:
+                              description: Total amount paid toward this invoice
+                              type: string
+                              example: '0.00'
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/invoices/charges:
+    get:
+      tags:
+      - Invoices
+      summary: Invoices - Charges
+      description: Retrieve invoice charges with filtering and pagination
+      operationId: InvoicesCharges
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: filter
+        in: query
+        description: Filter parameters
+        required: false
+        schema:
+          properties:
+            accountCodeId:
+              description: 'Optional. Filter by account code ID (min: 1, max: 999999999999999999)'
+              type: integer
+              example: 4
+            bookingTypeIds:
+              description: Optional. Filter by booking type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 538
+            serviceTypeIds:
+              description: Optional. Filter by service type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 156
+            packageTypeIds:
+              description: Optional. Filter by package type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 1
+            membershipTypeIds:
+              description: Optional. Filter by membership type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 1
+            retailTypeIds:
+              description: Optional. Filter by retail type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 2
+            openItemTypeIds:
+              description: Optional. Filter by open item type IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 3
+            parentIds:
+              description: Optional. Filter by parent IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 3
+            locationIds:
+              description: Optional. Filter by location IDs
+              type: array
+              items:
+                type: integer
+              example:
+              - 9
+            invoiceStatus:
+              description: 'Optional. Filter by invoice status (allowed: Open, Closed, Estimate)'
+              type: string
+              example: Estimate
+            bookingStart:
+              description: Optional. Filter by booking start date range (YYYY-MM-DD format)
+              properties:
+                from:
+                  type: string
+                  example: '2025-11-09'
+                to:
+                  type: string
+                  example: '2025-11-09'
+              type: object
+            bookingEnd:
+              description: Optional. Filter by booking end date range (YYYY-MM-DD format)
+              properties:
+                from:
+                  type: string
+                  example: '2025-11-09'
+                to:
+                  type: string
+                  example: '2025-11-09'
+              type: object
+            bookingCreated:
+              description: Optional. Filter by booking created date range (YYYY-MM-DD format)
+              properties:
+                from:
+                  type: string
+                  example: '2025-11-09'
+                to:
+                  type: string
+                  example: '2025-11-09'
+              type: object
+            transactionDate:
+              description: Optional. Filter by transaction date range (YYYY-MM-DD format)
+              properties:
+                from:
+                  type: string
+                  example: '2025-11-09'
+                to:
+                  type: string
+                  example: '2025-11-09'
+              type: object
+          type: object
+      - name: page
+        in: query
+        description: Pagination parameters
+        required: false
+        schema:
+          properties:
+            size:
+              description: Number of items per page
+              type: integer
+              enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              example: 25
+            number:
+              description: 'Page number (min: 1, max: 999999999999999999)'
+              type: integer
+              maximum: 999999999999999999
+              minimum: 1
+              example: 1
+          type: object
+      responses:
+        '200':
+          description: Successful response with invoice charges data
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  meta:
+                    properties:
+                      currentPage:
+                        type: integer
+                        format: int64
+                        example: '1'
+                      lastPage:
+                        type: integer
+                        format: int64
+                        example: '6389'
+                      perPage:
+                        type: integer
+                        format: int64
+                        example: '10'
+                      total:
+                        type: integer
+                        format: int64
+                        example: '63890'
+                    type: object
+                  links:
+                    properties:
+                      first:
+                        type: string
+                        example: http://localhost/v1/invoices/charges?page[number]=1&page[size]=10
+                      last:
+                        type: string
+                        example: http://localhost/v1/invoices/charges?page[number]=6389&page[size]=10
+                      prev:
+                        type: string
+                        example: ''
+                      next:
+                        type: string
+                        example: http://localhost/v1/invoices/charges?page[number]=2&page[size]=10
+                    type: object
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        type:
+                          description: JSON:API resource type identifier
+                          type: string
+                          example: invoice-items
+                        id:
+                          description: Unique resource identifier
+                          type: integer
+                          format: int64
+                          example: '79268'
+                        attributes:
+                          properties:
+                            invoiceItemId:
+                              description: Unique identifier of the invoice line item
+                              type: integer
+                              format: int64
+                              example: '79268'
+                            invoiceItemType:
+                              description: Category of the charge (e.g., retail, reservation, service)
+                              type: string
+                              example: retail
+                            invoiceId:
+                              description: ID of the parent invoice this charge belongs to
+                              type: integer
+                              format: int64
+                              example: '50803'
+                            itemPrice:
+                              description: Price of the individual item
+                              type: integer
+                              format: int64
+                              example: '1'
+                            accountCodeId:
+                              description: Account code identifier associated with this charge
+                              type: string
+                              example: ''
+                            retailTypeId:
+                              description: ID of the retail product type for this charge
+                              type: integer
+                              format: int64
+                              example: '16'
+                          type: object
+                      type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+      security:
+      - XApiKey: []
+  /v1/invoices/{invoiceId}:
+    get:
+      tags:
+      - Invoices
+      summary: Invoice - Details
+      description: Returns the full details of a single invoice by its ID, including all line items, applied payments, discounts, taxes, and the outstanding balance. Use this to display a receipt or invoice breakdown to a parent, or to verify payment status before processing a refund.
+      operationId: InvoiceDetails
+      parameters:
+      - name: subdomain
+        in: header
+        description: Organization subdomain identifier
+        required: true
+        schema:
+          type: string
+          example: donny
+      - name: Accept
+        in: header
+        description: Content type acceptance header
+        required: true
+        schema:
+          type: string
+          example: application/vnd.api+json
+      - name: invoiceId
+        in: path
+        description: Invoice ID (valid Invoice ID)
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: '19256'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/vnd.api+json:
+              schema:
+                properties:
+                  jsonapi:
+                    properties:
+                      version:
+                        type: string
+                        example: '1.0'
+                    type: object
+                  data:
+                    properties:
+                      type:
+                        description: JSON:API resource type identifier
+                        type: string
+                        example: invoices
+                      id:
+                        description: Unique resource identifier
+                        type: integer
+                        format: int64
+                        example: '19256'
+                      attributes:
+                        properties:
+                          invoiceStatus:
+                            description: Current status of the invoice (Open, Closed, Voided, Estimate)
+                            type: string
+                            example: Open
+                          location:
+                            description: Location where the invoice was generated
+                            properties:
+                              id:
+                                description: Unique identifier of the location
+                                type: integer
+                                format: int64
+                                example: '1'
+                              name:
+                                description: Display name of the location
+                                type: string
+                                example: Happy Wags
+                            type: object
+                          parent:
+                            description: Parent (owner) associated with the invoice
+                            properties:
+                              id:
+                                description: Unique identifier of the parent
+                                type: integer
+                                format: int64
+                                example: '2547'
+                              name:
+                                description: Full name of the parent
+                                type: string
+                                example: '[Parent Name]'
+                            type: object
+                          invoiceTotal:
+                            description: Total invoice amount as a decimal string
+                            type: string
+                            example: '272.20'
+                          deposit:
+                            description: Deposits associated with this invoice. A multi-pet invoice may have one deposit per pet when "one deposit per family" is disabled. Empty when there are no deposits.
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the deposit
+                                  type: integer
+                                  format: int64
+                                  example: '1877'
+                                amount:
+                                  description: Amount paid toward the deposit as a decimal string
+                                  type: string
+                                  example: '10.00'
+                                isRefunded:
+                                  description: Whether the deposit has been refunded
+                                  type: boolean
+                                  example: false
+                                isForFeited:
+                                  description: Whether the deposit has been forfeited
+                                  type: boolean
+                                  example: false
+                              type: object
+                          paymentAmount:
+                            description: Total amount paid toward this invoice
+                            type: integer
+                            format: int64
+                            example: '110'
+                          remaininDue:
+                            description: Remaining balance due on the invoice
+                            type: string
+                            example: '162.20'
+                          invoiceItemDetails:
+                            description: List of line items on the invoice
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the invoice line item
+                                  type: integer
+                                  format: int64
+                                  example: '31295'
+                                description:
+                                  description: Description of the charge (may contain HTML)
+                                  type: string
+                                  example: <b>Reservation for Raja ([Parent Name])</b>
+                                price:
+                                  description: Price of the line item as a decimal string
+                                  type: string
+                                  example: '250.00'
+                                taxAmount:
+                                  description: Tax amount applied to this line item
+                                  type: string
+                                  example: '22.20'
+                                itemType:
+                                  description: Category of the line item (e.g., Reservations, Retail)
+                                  type: string
+                                  example: Reservations
+                              type: object
+                          payments:
+                            description: List of payments applied to this invoice
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the payment
+                                  type: integer
+                                  format: int64
+                                  example: '3569'
+                                amount:
+                                  description: Payment amount as a decimal string
+                                  type: string
+                                  example: '10.00'
+                              type: object
+                          refund:
+                            description: List of refunds applied to this invoice
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the refund payment
+                                  type: integer
+                                  format: int64
+                                  example: '3572'
+                                amount:
+                                  description: Refund amount as a decimal string
+                                  type: string
+                                  example: '172.20'
+                              type: object
+                          void:
+                            description: List of voided items on this invoice
+                            type: array
+                            items:
+                              properties:
+                                id:
+                                  description: Unique identifier of the void record
+                                  type: integer
+                                  format: int64
+                                  example: '73'
+                                reason:
+                                  description: Reason provided for voiding the item
+                                  type: string
+                                  example: sdf
+                                itemId:
+                                  description: ID of the invoice item that was voided
+                                  type: integer
+                                  format: int64
+                                  example: '44912'
+                              type: object
+                        type: object
+                    type: object
+                type: object
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                - status: 404
+                  title: Not Found
+                  detail: Invoice not found
+      security:
+      - XApiKey: []
+components:
   responses:
-    NotFound:
-      description: The requested resource was not found.
+    ValidationResponse:
+      description: Validation error response
+      content:
+        application/vnd.api+json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: integer
+                      example: 422
+                    source:
+                      properties:
+                        pointer:
+                          type: string
+                          example: field
+                      type: object
+                    title:
+                      type: string
+                      example: Invalid Data Parameter
+                    detail:
+                      type: string
+                      example: The field must be valid.
+                  type: object
+            type: object
   securitySchemes:
-    ApiKeyAuth:
+    XApiKey:
       type: apiKey
-      in: header
+      description: Handle an incoming request.
       name: X-Api-Key
-      description: 'API key issued per Gingr account from the "Manage Account" > API area of the Gingr console. Every request additionally requires a `subdomain` header identifying the Gingr account, and an `Accept: application/vnd.api+json` header.'
+      in: header
