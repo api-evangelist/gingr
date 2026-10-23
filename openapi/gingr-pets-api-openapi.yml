@@ -3966,3 +3966,9 @@ components:
       description: Handle an incoming request.
       name: X-Api-Key
       in: header
+x-provenance:
+  method: harvested
+  publisher: Gingr
+  source: https://docs.gingr.io/documentation/swagger.json?1792427290
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
